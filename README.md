@@ -62,6 +62,7 @@ the following environment variables are set for these steps
     ```
     ${AMREX_REGTEST_HOME}/regtest.py --make_benchmarks "Benchmarks 20161012" ${PELE_REGTEST_HOME}/Scripts/PeleC-tests.ini
     ```
+   Note that the file at the end of this line is typically taken from the app repo (using in `Testing/Regression/XXX-tests.ini`), and written in this location after customizing for your folder setup.  There are scripts in this repo in the `Scripts` folder that show how you might do this on-the-fly.
 
 4. Upon some trigger event, re-run the tests and format the results in html.  In this case, the results will appear as TestData/PeleC/www/index.html
 
