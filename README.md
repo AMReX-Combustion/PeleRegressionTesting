@@ -51,10 +51,10 @@ the following environment variables are set for these steps
 2.  Create a clone of `AMReX`, the AMReX `regression_testing` suite, `PeleC` and `PelePhysics`.  Note that the testing suite may optionally checkout specific branches or SHA1 commits of the needed repositories, but will always restore the repository to it's original state afterward.  Nevertheless, it is suggested to make a clone locally for the exclusive use of the regression test runners.
 
     ```
-    git clone https://github.com/AMReX-Codes/amrex.git ${AMREX_HOME}
-    git clone https://github.com/AMReX-Codes/regression_testing.git ${AMREX_REGTEST_HOME}
+    git clone git@github.com:AMReX-Codes/amrex.git ${AMREX_HOME}
+    git clone git@github.com:AMReX-Codes/regression_testing.git ${AMREX_REGTEST_HOME}
     git clone git@github.com:AMReX-Combustion/PeleC.git ${PELEC_HOME}
-    git clone  git@github.com:AMReX-Combustion/PelePhysics.git ${PELE_PHYSICS_HOME}
+    git clone git@github.com:AMReX-Combustion/PelePhysics.git ${PELE_PHYSICS_HOME}
     ```
 
 3.  Generate the initial benchmark solution.  Rerunning this at any time will overwrite the previous versions of the benchmarks
