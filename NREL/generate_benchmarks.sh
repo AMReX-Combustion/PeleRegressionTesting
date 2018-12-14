@@ -27,9 +27,13 @@ if [ ! -z "${PBS_JOBID}" ]; then
 fi
 
 if [ ${MACHINE_NAME} == 'peregrine' ]; then
+  cmd "module unuse /nopt/nrel/apps/modules/centos7/modulefiles"
+  cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
+  cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
+  cmd "module use /nopt/nrel/ecom/hpacf/software/modules/gcc-7.3.0"
   cmd "module purge"
   cmd "module load gcc/7.3.0"
-  cmd "module load openmpi/3.1.3"
+  cmd "module load openmpi"
   cmd "module load python/2.7.15"
   cmd "module load git"
   cmd "module load masa"

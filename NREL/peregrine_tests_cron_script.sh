@@ -2,4 +2,4 @@
 
 set -e
 
-cd /projects/ExaCT/Pele/PeleTests/PeleRegressionTesting && qsub run_tests.sh
+cd /projects/ExaCT/Pele/PeleTests/PeleRegressionTesting/NREL && qsub run_tests.sh
