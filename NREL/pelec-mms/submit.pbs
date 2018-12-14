@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#PBS -l walltime=24:00:00  # WALLTIME limit
+#PBS -q batch-h  # queue
+#PBS -l nodes=4:ppn=24  # Number of nodes, put x processes on each
+#PBS -N pelec-mms  # Name of job
+#PBS -A exact  # Project handle
+#PBS -m ae  # Email at start/end of job
+#PBS -j oe  # Combine output and error file
+#PBS -M marc.henrydefrahan@nrel.gov
+echo $PBS_O_WORKDIR
+cd $PBS_O_WORKDIR
+
+#  Put your job commands after this line
+{
+    module purge 
+    module use /nopt/nrel/apps/modules/candidate/modulefiles
+    module load openmpi-gcc/1.10.0-5.2.0
+    module load gcc/5.2.0 
+    module load python/2.7.8
+} &> /dev/null
+
+
+#================================================================================
+# Setup
+CWDIR=`pwd`
+
+#================================================================================
+# Pele binary
+PELE_MMS_EXE_3D=${CWDIR}/PeleC3d.gnu.MPI.ex
+PELE_MMS_EXE_2D=${CWDIR}/PeleC2d.gnu.MPI.ex
+PELE_MMS_EXE_1D=${CWDIR}/PeleC1d.gnu.MPI.ex
+
+#================================================================================
+# Run the MMS cases
+source run_verification_cases.sh
+run_verification_cases
+

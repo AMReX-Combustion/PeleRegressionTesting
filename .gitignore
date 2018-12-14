@@ -1,0 +1,16 @@
+.DS_Store
+PeleC3d.gnu.MPI.ex
+PeleC2d.gnu.MPI.ex
+PeleC1d.gnu.MPI.ex
+pelec*.o*[0-9]
+pelec_benchmarks.log
+plt*/
+chk*/
+*.png
+*.jpg
+datlog
+mmslog
+mms.out
+*.pdf
+__pycache__
+*.pyc
