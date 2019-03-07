@@ -9,7 +9,7 @@ run_verification_cases () {
   # Symmetry
   CNS_DIR=${MMS_DIR}/symmetry_3d
   (set -x; cd ${CNS_DIR} && rm -rf chk* plt* datlog mmslog && \
-  mpirun -report-bindings -n 4 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
+  mpirun -report-bindings -n 4 ${PELE_MMS_EXE_3D} inputs_3d > mms.out 2>&1) &
 
   # CNS without AMR 1D
   CNS_DIR=${MMS_DIR}/cns_noamr_1d
@@ -19,7 +19,7 @@ run_verification_cases () {
   for (( i=0; i<5; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_1D} inputs_1d" > mms.out 2>&1) &
+    mpirun -report-bindings -n ${NP[${i}]} ${PELE_MMS_EXE_1D} inputs_1d > mms.out 2>&1) &
   done
   wait
 

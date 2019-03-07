@@ -2,20 +2,15 @@
 
 #PBS -N pelec_verification
 #PBS -l nodes=4:ppn=24,walltime=12:00:00,feature=haswell
-##PBS -l nodes=1:ppn=24,walltime=0:30:00,feature=haswell
 #PBS -A exact
 #PBS -q batch-h
 #PBS -j oe
 #PBS -W umask=002
 
-# Control over printing and executing commands
-print_cmds=true
-execute_cmds=true
-
 # Function for printing and executing commands
 cmd() {
-  if ${print_cmds}; then echo "+ $@"; fi
-  if ${execute_cmds}; then eval "$@"; fi
+  echo "+ $@"
+  eval "$@"
 }
 
 set -e
@@ -40,50 +35,39 @@ if [ ! -z "${PBS_JOBID}" ]; then
   printf "\n"
 fi
 
-# Assuming only Peregrine at the moment
-if [ ! -z "${PBS_JOBID}" ]; then
-  MACHINE_NAME=peregrine
-  PROPER_MACHINE_NAME=Peregrine
-fi
+TESTING_DIR=/projects/ExaCT/Pele/PeleTests
+cmd "module unuse ${MODULEPATH}"
+cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
+cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
+cmd "module use /nopt/nrel/ecom/hpacf/software/modules/gcc-7.3.0"
+cmd "module purge"
+cmd "module load gcc/7.3.0"
+cmd "module load openmpi"
+cmd "module load git"
+cmd "module load masa"
+cmd "module load python/3.6.5"
+cmd "module load py-matplotlib/2.2.3-py3"
+cmd "module load py-six/1.11.0-py3"
+cmd "module load py-numpy/1.14.3-py3"
+cmd "module load py-pyparsing/2.2.0-py3"
+cmd "module load py-cycler/0.10.0-py3"
+cmd "module load py-dateutil/2.5.2-py3"
+cmd "module load py-bottleneck/1.2.1-py3"
+cmd "module load py-cython/0.29-py3"
+cmd "module load py-nose/1.3.7-py3"
+cmd "module load py-numexpr/2.6.5-py3"
+cmd "module load py-packaging/17.1-py3"
+cmd "module load py-pandas/0.23.4-py3"
+cmd "module load py-pillow/5.1.0-py3"
+cmd "module load py-pytz/2017.2-py3"
+cmd "module load py-setuptools/40.4.3-py3"
+cmd "module load py-kiwisolver/1.0.1-py3"
 
-# Setup machine specific environment
-if [ ${MACHINE_NAME} == 'peregrine' ]; then
-  TESTING_DIR=/projects/ExaCT/Pele/PeleTests
-  cmd "module unuse ${MODULEPATH}"
-  cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
-  cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
-  cmd "module use /nopt/nrel/ecom/hpacf/software/modules/gcc-7.3.0"
-  cmd "module purge"
-  cmd "module load gcc/7.3.0"
-  cmd "module load openmpi"
-  cmd "module load git"
-  cmd "module load masa"
-  cmd "module load python/3.6.5"
-  cmd "module load py-matplotlib/2.2.3-py3"
-  cmd "module load py-six/1.11.0-py3"
-  cmd "module load py-numpy/1.14.3-py3"
-  cmd "module load py-pyparsing/2.2.0-py3"
-  cmd "module load py-cycler/0.10.0-py3"
-  cmd "module load py-dateutil/2.5.2-py3"
-  cmd "module load py-bottleneck/1.2.1-py3"
-  cmd "module load py-cython/0.29-py3"
-  cmd "module load py-nose/1.3.7-py3"
-  cmd "module load py-numexpr/2.6.5-py3"
-  cmd "module load py-packaging/17.1-py3"
-  cmd "module load py-pandas/0.23.4-py3"
-  cmd "module load py-pillow/5.1.0-py3"
-  cmd "module load py-pytz/2017.2-py3"
-  cmd "module load py-setuptools/40.4.3-py3"
-  cmd "module load py-kiwisolver/1.0.1-py3"
-
-  printf "======================================================\n"
-  printf "Outputting module list:\n"
-  printf "======================================================\n"
-  cmd "module list"
-  printf "======================================================\n"
-else
-  printf "\nMachine name not recognized.\n\n"
-fi
+printf "======================================================\n"
+printf "Outputting module list:\n"
+printf "======================================================\n"
+cmd "module list"
+printf "======================================================\n"
 
 cmd "export AMREX_HOME=${TESTING_DIR}/AMReX"
 cmd "export PELEC_HOME=${TESTING_DIR}/PeleC"
