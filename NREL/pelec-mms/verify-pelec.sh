@@ -35,11 +35,12 @@ if [ ! -z "${PBS_JOBID}" ]; then
   printf "\n"
 fi
 
-TESTING_DIR=/projects/ExaCT/Pele/PeleTests
+TESTING_DIR=/projects/ecp/combustion/pelec-testing
+
 cmd "module unuse ${MODULEPATH}"
-cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
-cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
-cmd "module use /nopt/nrel/ecom/hpacf/software/modules/gcc-7.3.0"
+cmd "module use /opt/compilers/modules"
+cmd "module use /opt/utilities/modules"
+cmd "module use /opt/software/modules/gcc-7.3.0"
 cmd "module purge"
 cmd "module load gcc/7.3.0"
 cmd "module load openmpi"

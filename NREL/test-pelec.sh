@@ -14,6 +14,8 @@ printf "Job is running on ${HOSTNAME}\n"
 printf "======================================================\n"
 printf "\n"
 
+TESTING_DIR=/projects/ecp/combustion/pelec-testing
+
 cmd "module unuse ${MODULEPATH}"
 cmd "module use /opt/compilers/modules"
 cmd "module use /opt/utilities/modules"
@@ -25,7 +27,6 @@ cmd "module load python/3.6.5"
 cmd "module load git"
 cmd "module load rsync"
 cmd "module load masa"
-TESTING_DIR=/projects/ecp/combustion/pelec-testing
 
 cmd "export AMREX_HOME=${TESTING_DIR}/amrex"
 cmd "export AMREX_TESTING=${TESTING_DIR}/amrex_testing"
