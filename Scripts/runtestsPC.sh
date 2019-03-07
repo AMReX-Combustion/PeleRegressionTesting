@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TESTPARAMS=Scripts/PeleC-tests.ini
-PARAMSORIG=${PELELM_HOME}/Testing/Regression/PeleC-tests.ini
+PARAMSORIG=${PELEC_HOME}/Testing/Regression/PeleC-tests.ini
 
 echo "Generating ${TESTPARAMS} from ${PARAMSORIG}"
 
