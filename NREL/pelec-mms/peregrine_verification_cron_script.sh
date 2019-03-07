@@ -2,4 +2,4 @@
 
 set -e
 
-cd /projects/ExaCT/Pele/PeleTests/PeleRegressionTesting/pelec-mms && qsub run_verification.sh
+cd /projects/ExaCT/Pele/PeleTests/PeleRegressionTesting/NREL/pelec-mms && qsub run_verification.sh

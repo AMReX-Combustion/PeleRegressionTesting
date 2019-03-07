@@ -1,7 +1,8 @@
 #!/bin/bash -l
 
 #PBS -N pelec_verification
-#PBS -l nodes=4:ppn=24,walltime=12:00:00
+#PBS -l nodes=4:ppn=24,walltime=12:00:00,feature=haswell
+##PBS -l nodes=1:ppn=24,walltime=0:30:00,feature=haswell
 #PBS -A exact
 #PBS -q batch-h
 #PBS -j oe
@@ -48,7 +49,7 @@ fi
 # Setup machine specific environment
 if [ ${MACHINE_NAME} == 'peregrine' ]; then
   TESTING_DIR=/projects/ExaCT/Pele/PeleTests
-  cmd "module unuse /nopt/nrel/apps/modules/centos7/modulefiles"
+  cmd "module unuse ${MODULEPATH}"
   cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
   cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
   cmd "module use /nopt/nrel/ecom/hpacf/software/modules/gcc-7.3.0"
@@ -57,26 +58,24 @@ if [ ${MACHINE_NAME} == 'peregrine' ]; then
   cmd "module load openmpi"
   cmd "module load git"
   cmd "module load masa"
-  cmd "module load python/2.7.15"
-  cmd "module load py-matplotlib/2.2.2-py2"
-  cmd "module load py-six/1.11.0-py2"
-  cmd "module load py-numpy/1.14.3-py2"
-  cmd "module load py-pyparsing/2.2.0-py2"
-  cmd "module load py-backports-functools-lru-cache/1.5-py2"
-  cmd "module load py-backports/1.0.0-py2"
-  cmd "module load py-cycler/0.10.0-py2"
-  cmd "module load py-dateutil/2.5.2-py2"
-  cmd "module load py-bottleneck/1.0.0-py2"
-  cmd "module load py-cython/0.28.3-py2"
-  cmd "module load py-nose/1.3.7-py2"
-  cmd "module load py-numexpr/2.6.5-py2"
-  cmd "module load py-packaging/17.1-py2"
-  cmd "module load py-pandas/0.21.1-py2"
-  cmd "module load py-pillow/5.1.0-py2"
-  cmd "module load py-pytz/2017.2-py2"
-  cmd "module load py-functools32/3.2.3-2-py2"
-  cmd "module load py-setuptools/39.2.0-py2"
-  cmd "module load py-kiwisolver/1.0.1-py2"
+  cmd "module load python/3.6.5"
+  cmd "module load py-matplotlib/2.2.3-py3"
+  cmd "module load py-six/1.11.0-py3"
+  cmd "module load py-numpy/1.14.3-py3"
+  cmd "module load py-pyparsing/2.2.0-py3"
+  cmd "module load py-cycler/0.10.0-py3"
+  cmd "module load py-dateutil/2.5.2-py3"
+  cmd "module load py-bottleneck/1.2.1-py3"
+  cmd "module load py-cython/0.29-py3"
+  cmd "module load py-nose/1.3.7-py3"
+  cmd "module load py-numexpr/2.6.5-py3"
+  cmd "module load py-packaging/17.1-py3"
+  cmd "module load py-pandas/0.23.4-py3"
+  cmd "module load py-pillow/5.1.0-py3"
+  cmd "module load py-pytz/2017.2-py3"
+  cmd "module load py-setuptools/40.4.3-py3"
+  cmd "module load py-kiwisolver/1.0.1-py3"
+
   printf "======================================================\n"
   printf "Outputting module list:\n"
   printf "======================================================\n"
@@ -96,12 +95,12 @@ printf "======================================================\n"
 printf "Running verification:\n"
 printf "======================================================\n"
 # Document latest hashes
-#cmd "${TESTING_DIR}/PeleRegressionTesting/pelec-mms/hashes.txt || true"
+#cmd "${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/hashes.txt || true"
 {
 printf "PeleC: $(cd ${TESTING_DIR}/PeleC && git log --pretty=format:'%H' -n 1)\n"
 printf "PelePhysics: $(cd ${TESTING_DIR}/PelePhysics && git log --pretty=format:'%H' -n 1)\n"
 printf "AMReX: $(cd ${TESTING_DIR}/AMReX && git log --pretty=format:'%H' -n 1)\n"
-} > ${TESTING_DIR}/PeleRegressionTesting/pelec-mms/hashes.txt
+} > ${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/hashes.txt
 
 # Find latest Pele MMS executables
 PELE_MMS_EXE_3D="${TESTING_DIR}/PeleC-tests/$(ls -t ${TESTING_DIR}/PeleC-tests | head -1)/MMS1/PeleC3d.gnu.TEST.MPI.ex"
@@ -110,9 +109,9 @@ PELE_MMS_EXE_1D="${TESTING_DIR}/PeleC-tests/$(ls -t ${TESTING_DIR}/PeleC-tests |
 PELE_MMS_MOL_EXE_3D="${TESTING_DIR}/PeleC-tests/$(ls -t ${TESTING_DIR}/PeleC-tests | head -1)/MMS6/PeleC3d.gnu.TEST.MPI.ex"
 PELE_MMS_MOL_EXE_2D="${TESTING_DIR}/PeleC-tests/$(ls -t ${TESTING_DIR}/PeleC-tests | head -1)/MMS7/PeleC2d.gnu.TEST.MPI.ex"
 
-MMS_DIR=${TESTING_DIR}/PeleRegressionTesting/pelec-mms
+MMS_DIR=${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms
 # Need MMS_DIR and PELE_MMS_EXE_<N>D variables set before calling function
-source ${TESTING_DIR}/PeleRegressionTesting/pelec-mms/run_verification_cases.sh
+source ${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/run_verification_cases.sh
 run_verification_cases
 
 # Run the test suite and always exit with success
@@ -160,7 +159,7 @@ printf "\n\nDoing rsync to verification results repo...\n"
       --exclude 'build-fail.svg' \
       --exclude '.git' \
       --delete \
-      ${TESTING_DIR}/PeleRegressionTesting/pelec-mms/ \
+      ${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/ \
       ${TESTING_DIR}/PeleVerificationResults-${PROPER_MACHINE_NAME}/)
 printf "\n\nPerforming git history cleaning...\n"
 cmd "git checkout --orphan newBranch"
