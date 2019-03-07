@@ -45,6 +45,7 @@ cmd "module purge"
 cmd "module load gcc/7.3.0"
 cmd "module load openmpi"
 cmd "module load git"
+cmd "module load rsync"
 cmd "module load masa"
 cmd "module load python/3.6.5"
 cmd "module load py-matplotlib/2.2.3-py3"
@@ -70,7 +71,7 @@ printf "======================================================\n"
 cmd "module list"
 printf "======================================================\n"
 
-cmd "export AMREX_HOME=${TESTING_DIR}/AMReX"
+cmd "export AMREX_HOME=${TESTING_DIR}/amrex"
 cmd "export PELEC_HOME=${TESTING_DIR}/PeleC"
 cmd "export PELE_PHYSICS_HOME=${TESTING_DIR}/PelePhysics"
 cmd "export MASA_HOME=${MASA_ROOT_DIR}"
@@ -84,7 +85,7 @@ printf "======================================================\n"
 {
 printf "PeleC: $(cd ${TESTING_DIR}/PeleC && git log --pretty=format:'%H' -n 1)\n"
 printf "PelePhysics: $(cd ${TESTING_DIR}/PelePhysics && git log --pretty=format:'%H' -n 1)\n"
-printf "AMReX: $(cd ${TESTING_DIR}/AMReX && git log --pretty=format:'%H' -n 1)\n"
+printf "AMReX: $(cd ${TESTING_DIR}/amrex && git log --pretty=format:'%H' -n 1)\n"
 } > ${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/hashes.txt
 
 # Find latest Pele MMS executables
@@ -125,7 +126,7 @@ printf "\n"
 printf "======================================================\n"
 printf "Pushing test results to github repo:\n"
 printf "======================================================\n"
-cmd "cd ${TESTING_DIR}/PeleVerificationResults-${PROPER_MACHINE_NAME}/"
+cmd "cd ${TESTING_DIR}/PeleVerificationResults-Peregrine/"
 cmd "git --version"
 printf "\n\nDoing rsync to verification results repo...\n"
 (set -x; rsync -avhW0 \
@@ -145,7 +146,7 @@ printf "\n\nDoing rsync to verification results repo...\n"
       --exclude '.git' \
       --delete \
       ${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/ \
-      ${TESTING_DIR}/PeleVerificationResults-${PROPER_MACHINE_NAME}/)
+      ${TESTING_DIR}/PeleVerificationResults-Peregrine/)
 printf "\n\nPerforming git history cleaning...\n"
 cmd "git checkout --orphan newBranch"
 cmd "git add -A"

@@ -4,6 +4,9 @@ PeleC2d.gnu.MPI.ex
 PeleC1d.gnu.MPI.ex
 pelec*.o*[0-9]
 test-pelec*.log
+verify-pelec*.log
+build-status.svg
+hashes.txt
 pelec_benchmarks.log
 plt*/
 chk*/

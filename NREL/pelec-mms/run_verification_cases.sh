@@ -39,7 +39,7 @@ run_verification_cases () {
   CNS_DIR=${MMS_DIR}/cns_noamr_3d
   (set -x; rm ${CNS_DIR}/*.png || true)
   N=(8 16 32 64)
-  NP=(1 8 24 96)
+  NP=(1 8 24 64)
   for (( i=0; i<4; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
@@ -51,7 +51,7 @@ run_verification_cases () {
   CNS_DIR=${MMS_DIR}/cns_noamr_mol_3d
   (set -x; rm ${CNS_DIR}/*.png || true)
   N=(8 16 32 64)
-  NP=(1 8 24 96)
+  NP=(1 8 24 64)
   for (( i=0; i<4; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
@@ -75,7 +75,7 @@ run_verification_cases () {
   CNS_DIR=${MMS_DIR}/cns_amr_3d
   (set -x; rm ${CNS_DIR}/*.png || true)
   N=(8 16 32)
-  NP=(1 16 96)
+  NP=(1 16 64)
   for (( i=0; i<3; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
@@ -83,6 +83,6 @@ run_verification_cases () {
   done
   # This one takes 4 nodes about 24 hours
   #(set -x; cd ${CNS_DIR}/64 && rm -rf chk* plt* datlog mmslog && \
-  #mpirun -report-bindings -n 96 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1)
+  #mpirun -report-bindings -n 64 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1)
   wait
 }
