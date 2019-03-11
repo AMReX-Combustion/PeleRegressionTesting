@@ -103,7 +103,7 @@ run_verification_cases
 # Run the test suite and always exit with success
 set +e;
 (set -x; img=build-status.svg;
- cd ${MMS_DIR} && rm ${img} && nosetests;
+ cd ${MMS_DIR}; rm ${img}; nosetests;
  if [ $? -eq 0 ]
  then
      cp build-pass.svg ${img};

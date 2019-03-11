@@ -9,7 +9,7 @@ run_verification_cases () {
   # Symmetry
   CNS_DIR=${MMS_DIR}/symmetry_3d
   (set -x; cd ${CNS_DIR} && rm -rf chk* plt* datlog mmslog && \
-  mpirun -report-bindings -n 4 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
+  mpirun --use-hwthread-cpus --oversubscribe -n 4 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
 
   # CNS without AMR 1D
   CNS_DIR=${MMS_DIR}/cns_noamr_1d
@@ -19,7 +19,7 @@ run_verification_cases () {
   for (( i=0; i<5; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_1D} inputs_1d" > mms.out 2>&1) &
+    mpirun --use-hwthread-cpus --oversubscribe -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_1D} inputs_1d" > mms.out 2>&1) &
   done
   wait
 
@@ -31,7 +31,7 @@ run_verification_cases () {
   for (( i=0; i<4; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_2D} inputs_2d" > mms.out 2>&1) &
+    mpirun --use-hwthread-cpus --oversubscribe -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_2D} inputs_2d" > mms.out 2>&1) &
   done
   wait
 
@@ -43,7 +43,7 @@ run_verification_cases () {
   for (( i=0; i<4; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
+    mpirun --use-hwthread-cpus --oversubscribe -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
   done
   wait
 
@@ -55,7 +55,7 @@ run_verification_cases () {
   for (( i=0; i<4; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_MOL_EXE_3D} inputs_3d" > mms.out 2>&1) &
+    mpirun --use-hwthread-cpus --oversubscribe -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_MOL_EXE_3D} inputs_3d" > mms.out 2>&1) &
   done
   wait
 
@@ -67,7 +67,7 @@ run_verification_cases () {
   for (( i=0; i<4; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_MOL_EXE_2D} inputs_2d" > mms.out 2>&1) &
+    mpirun --use-hwthread-cpus --oversubscribe -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_MOL_EXE_2D} inputs_2d" > mms.out 2>&1) &
   done
   wait
 
@@ -79,10 +79,10 @@ run_verification_cases () {
   for (( i=0; i<3; i++ ));
   do
     (set -x; cd ${CNS_DIR}/${N[${i}]} && rm -rf chk* plt* datlog mmslog && \
-    mpirun -report-bindings -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
+    mpirun --use-hwthread-cpus --oversubscribe -n ${NP[${i}]} /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1) &
   done
   # This one takes 4 nodes about 24 hours
   #(set -x; cd ${CNS_DIR}/64 && rm -rf chk* plt* datlog mmslog && \
-  #mpirun -report-bindings -n 64 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1)
+  #mpirun --use-hwthread-cpus --oversubscribe -n 64 /bin/bash -c "ulimit -s 10240 && ${PELE_MMS_EXE_3D} inputs_3d" > mms.out 2>&1)
   wait
 }
