@@ -126,7 +126,7 @@ printf "\n"
 printf "======================================================\n"
 printf "Pushing test results to github repo:\n"
 printf "======================================================\n"
-cmd "cd ${TESTING_DIR}/PeleVerificationResults-Peregrine/"
+cmd "cd ${TESTING_DIR}/PeleCVerificationResults/"
 cmd "git --version"
 printf "\n\nDoing rsync to verification results repo...\n"
 (set -x; rsync -avhW0 \
@@ -146,7 +146,7 @@ printf "\n\nDoing rsync to verification results repo...\n"
       --exclude '.git' \
       --delete \
       ${TESTING_DIR}/PeleRegressionTesting/NREL/pelec-mms/ \
-      ${TESTING_DIR}/PeleVerificationResults-Peregrine/)
+      ${TESTING_DIR}/PeleCVerificationResults/)
 printf "\n\nPerforming git history cleaning...\n"
 cmd "git checkout --orphan newBranch"
 cmd "git add -A"
