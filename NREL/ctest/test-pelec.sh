@@ -58,7 +58,6 @@ test_configuration() {
     cmd "module load bison"
     cmd "module load wget"
     cmd "module load bc"
-    cmd "module load python"
     cmd "module load cppcheck"
     cmd "module load binutils"
     cmd "module load cmake"
@@ -155,7 +154,6 @@ test_configuration() {
     cmd "export PATH=$(spack location -i cmake %${COMPILER_ID})/bin:${PATH}"
     cmd "export PATH=$(spack location -i ${MPI_ID} %${COMPILER_ID})/bin:${PATH}"
   else
-    cmd "spack load cmake %${COMPILER_ID}"
     cmd "spack load ${MPI_ID} %${COMPILER_ID}"
   fi
 
