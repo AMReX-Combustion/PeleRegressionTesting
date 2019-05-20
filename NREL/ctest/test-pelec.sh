@@ -268,7 +268,7 @@ test_configuration() {
   if [ "${MACHINE_NAME}" != 'mac' ]; then
     cmd "module list"
   fi
-  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -VV -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
+  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
   printf "\nSaving golds...\n"
