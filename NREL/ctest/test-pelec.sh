@@ -218,7 +218,7 @@ test_configuration() {
     printf "\nCurrently ignoring container overflows...\n"
     cmd "export ASAN_OPTIONS=detect_container_overflow=0"
     printf "\nWriting asan.supp suppressions file...\n"
-    (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++" > ${PELEC_DIR}/build/asan.supp)
+    (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++\nleak:hwloc_bitmap_alloc" > ${PELEC_DIR}/build/asan.supp)
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_FLAGS:STRING=-fsanitize=address\ -fno-omit-frame-pointer ${CMAKE_CONFIGURE_ARGS}"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
