@@ -185,16 +185,16 @@ test_configuration() {
   #  cmd "export OMP_PROC_BIND=false"
   #fi
 
+
+
   # Run static analysis and let ctest know we have static analysis output
-  #if [ "${MACHINE_NAME}" == 'peregrine' ] || \
-  #   [ "${MACHINE_NAME}" == 'mac' ] || \
-  #   [ "${MACHINE_NAME}" == 'rhodes' ]; then
-  #  printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
-  #  cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt"
-  #  cmd "cppcheck --enable=all --quiet -j 8 --output-file=${LOGS_DIR}/pelec-static-analysis.txt -I ${PELEC_DIR}/include ${PELEC_DIR}/src"
-  #  cmd "printf \"%s warnings\n\" \"$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)\" >> ${LOGS_DIR}/pelec-static-analysis.txt"
-  #  CTEST_ARGS="-DHAVE_STATIC_ANALYSIS_OUTPUT:BOOL=TRUE -DSTATIC_ANALYSIS_LOG=${LOGS_DIR}/pelec-static-analysis.txt ${CTEST_ARGS}"
-  #fi
+  if [ "${MACHINE_NAME}" == 'rhodes' ]; then
+    printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
+    cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt || true"
+    cmd "cppcheck --enable=all --quiet -j 8 --output-file=${LOGS_DIR}/pelec-static-analysis.txt -I ${PELEC_DIR}/include ${PELEC_DIR}/Submodules/AMReX/Src/Base ${PELEC_DIR}/Submodules/AMReX/Src/Amr ${PELEC_DIR}/Submodules/AMReX/Src/AmrCore ${PELEC_DIR}/Submodules/AMReX/Src/Base ${PELEC_DIR}/Submodules/AMReX/Src/F_Interfaces/AmrCore ${PELEC_DIR}/Submodules/AMReX/Src/Boundary ${PELEC_DIR}/Submodules/AMReX/Tools/C_scripts ${PELEC_DIR}/Submodules/AMReX/Src/F_Interfaces/Base ${PELEC_DIR}/Submodules/AMReX/Src/EB ${PELEC_DIR}/Submodules/PelePhysics/Transport ${PELEC_DIR}/Submodules/PelePhysics/Reactions ${PELEC_DIR}/Submodules/PelePhysics/Support/Fuego/Evaluation ${PELEC_DIR}/Submodules/PelePhysics/Support/Fuego/Mechanism ${PELEC_DIR}/Source ${PELEC_DIR}/Source/param_includes || true"
+    cmd "printf \"%s warnings\n\" \"$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)\" >> ${LOGS_DIR}/pelec-static-analysis.txt"
+    CTEST_ARGS="-DHAVE_STATIC_ANALYSIS_OUTPUT:BOOL=TRUE -DSTATIC_ANALYSIS_LOG=${LOGS_DIR}/pelec-static-analysis.txt ${CTEST_ARGS}"
+  fi
 
   # Unset the TMPDIR variable after building but before testing during ctest nightly script
   if [ "${MACHINE_NAME}" == 'peregrine' ] || [ "${MACHINE_NAME}" == 'eagle' ]; then
@@ -245,7 +245,7 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} -DMPI_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DMPI_C_COMPILER:STRING=${MPI_C_COMPILER} -DMPI_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DENABLE_TESTS:BOOL=ON -DENABLE_VERIFICATION:BOOL=ON -DTEST_WITH_FCOMPARE:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DENABLE_VERIFICATION:BOOL=ON -DTEST_WITH_FCOMPARE:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_TESTING_ROOT_DIR}/pelec -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
