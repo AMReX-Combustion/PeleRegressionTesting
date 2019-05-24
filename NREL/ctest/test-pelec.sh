@@ -274,8 +274,10 @@ test_configuration() {
   cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
-  printf "\nSaving golds...\n"
-  (set -x; find ${PELEC_DIR}/build/Testing/test_files -type d -name *plt00010* | tar -czf ${GOLDS_DIR}/golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar.gz -T -)
+  #printf "\nSaving fcompare golds...\n"
+  #(set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* | tar -czf ${GOLDS_DIR}/fcompare_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar.gz -T -)
+  printf "\nSaving fextrema golds...\n"
+  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext | tar -czf ${GOLDS_DIR}/fextrema_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar.gz -T -)
 
   printf "\n"
   printf "************************************************************\n"
