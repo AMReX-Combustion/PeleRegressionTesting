@@ -185,8 +185,6 @@ test_configuration() {
   #  cmd "export OMP_PROC_BIND=false"
   #fi
 
-
-
   # Run static analysis and let ctest know we have static analysis output
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
@@ -248,7 +246,7 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} -DMPI_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DMPI_C_COMPILER:STRING=${MPI_C_COMPILER} -DMPI_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DENABLE_VERIFICATION:BOOL=ON -DTEST_WITH_FCOMPARE:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DENABLE_VERIFICATION:BOOL=ON -DTEST_WITH_FCOMPARE:BOOL=ON -DTEST_WITH_FEXTREMA:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_TESTING_ROOT_DIR}/pelec -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
@@ -266,23 +264,43 @@ test_configuration() {
     CMAKE_CONFIGURE_ARGS="-DMPIEXEC_PREFLAGS:STRING=--oversubscribe ${CMAKE_CONFIGURE_ARGS}"
   fi
 
-  printf "\nRunning CTest at $(date)...\n"
   cmd "cd ${PELEC_DIR}/build"
   if [ "${MACHINE_NAME}" != 'mac' ]; then
     cmd "module list"
   fi
+  printf "\n\nRunning CTest at $(date)...\n"
   cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
-  printf "\n\nGoing to delete these gold files older than 30 days:\n"
+  printf "\nGoing to delete these gold files older than 30 days:\n"
   cmd "cd ${GOLDS_DIR} && find . -mtime +30 -not -path '*/\.*'"
-  printf "\n\nDeleting the files...\n"
+  printf "\nDeleting the files...\n"
   cmd "cd ${GOLDS_DIR} && find . -mtime +30 -not -path '*/\.*' -delete"
+  printf "\n"
 
-  printf "\nSaving fcompare golds...\n"
-  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* | tar -cf ${GOLDS_DIR}/fcompare_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar -T -)
-  printf "\nSaving fextrema golds...\n"
-  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext | tar -cf ${GOLDS_DIR}/fextrema_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar -T -)
+  # Here we create a CMake project on the fly to have it write its OS/compiler info to a file
+  printf "Organizing gold files from multiple tests into a single directory...\n"
+  if [ ! -z "${PELEC_DIR}" ]; then
+    cmd "mkdir -p ${PELEC_DIR}/build/id/build"
+  fi
+  printf "\nWriting CMake ID project CMakeLists.txt...\n"
+  ID_CMAKE_LISTS=${PELEC_DIR}/build/id/CMakeLists.txt
+  cat >${ID_CMAKE_LISTS} <<'EOL'
+cmake_minimum_required(VERSION 3.11)
+project(ID CXX)
+file(WRITE ${CMAKE_BINARY_DIR}/id.txt ${CMAKE_SYSTEM_NAME}/${CMAKE_CXX_COMPILER_ID}/${CMAKE_CXX_COMPILER_VERSION})
+EOL
+  printf "\nRunning CMake on ID project...\n"
+  cmd "cd ${PELEC_DIR}/build/id/build && cmake .."
+  ID_FILE=$(cat ${PELEC_DIR}/build/id/build/id.txt)
+
+  printf "\nID_FILE contains: ${ID_FILE}\n"
+
+  printf "\nCopying fcompare golds to organized directory...\n"
+  cmd "mkdir -p ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}"
+  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
+  printf "\nCopying fextrema golds to organized directory...\n"
+  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
 
   printf "\n"
   printf "************************************************************\n"
@@ -334,6 +352,7 @@ main() {
     PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   else
     printf "\nMachine name not recognized.\n"
+    exit 1
   fi
  
   PELEC_DIR=${PELEC_TESTING_ROOT_DIR}/pelec
@@ -399,6 +418,11 @@ main() {
   printf "\nLoading Spack...\n"
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 
+  printf "\nMaking common directory across all tests in which to organize and save gold files...\n"
+  if [ ! -z "${PELEC_TESTING_ROOT_DIR}" ]; then
+    cmd "mkdir -p ${PELEC_TESTING_ROOT_DIR}/temp_golds"
+  fi
+
   printf "\n"
   printf "============================================================\n"
   printf "Starting testing loops...\n"
@@ -412,9 +436,10 @@ main() {
     MPI_ENABLED=${CONFIG[2]}
     OPENMP_ENABLED=${CONFIG[3]}
     LIST_OF_TPLS=${CONFIG[4]}
- 
+
     printf "\nRemoving previous test log for uploading to CDash...\n"
     cmd "rm ${LOGS_DIR}/pelec-test-log.txt"
+    printf "\n"
     (test_configuration) 2>&1 | tee -i ${LOGS_DIR}/pelec-test-log.txt
   done
 
@@ -424,7 +449,15 @@ main() {
   printf "============================================================\n"
   printf "Final steps\n"
   printf "============================================================\n"
- 
+
+  printf "\nSaving gold files...\n"
+  (set -x; tar -czf ${GOLDS_DIR}/pelec_golds-$(date +%Y-%m-%d-%H-%M).tar.gz -C ${PELEC_TESTING_ROOT_DIR}/temp_golds .)
+
+  printf "\nRemoving temporary golds...\n"
+  if [ ! -z "${PELEC_TESTING_ROOT_DIR}" ]; then
+    cmd "rm -rf ${PELEC_TESTING_ROOT_DIR}/temp_golds"
+  fi
+
   if [ "${MACHINE_NAME}" == 'eagle' ] || [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting permissions...\n"
     cmd "chmod -R a+rX,go-w ${PELEC_TESTING_ROOT_DIR}"

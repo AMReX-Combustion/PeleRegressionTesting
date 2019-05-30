@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.test.pelec.nightly</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/jrood/pelec-testing/PeleRegressionTesting/NREL/ctest/test-pelec-cron.sh</string>
+  </array>
+
+  <key>UserName</key>
+  <string>jrood</string>
+
+  <key>Nice</key>
+  <integer>1</integer>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+      <key>Hour</key>
+      <integer>12</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+  </dict>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/jrood/pelec-testing/logs/last-pelec-test-job.err</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/jrood/pelec-testing/logs/last-pelec-test-job.out</string>
+</dict>
+</plist>
