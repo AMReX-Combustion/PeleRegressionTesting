@@ -1,8 +1,8 @@
 #!/bin/bash -l
 
-# Script for updating the build-test repo before it's used in running the tests.
-# Set a cron job to cd to the build-test repo in testing directory and then
-# run this script.
+# Script for updating the PeleRegressionTesting repo before it's used in running the tests.
+# Set a cron job to cd to the build-test repo in testing directory and then run this script.
+# This allows manipulation of all the testing machines by committing updates to the test script.
 
 printf "$(date)\n"
 printf "======================================================\n"
