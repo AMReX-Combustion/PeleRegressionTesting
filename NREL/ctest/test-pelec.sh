@@ -86,12 +86,12 @@ test_configuration() {
     elif [ "${COMPILER_NAME}" == 'intel' ]; then
       cmd "module load ${INTEL_COMPILER_MODULE}"
     fi
-  elif [ "${MACHINE_NAME}" == 'peregrine' ] || [ "${MACHINE_NAME}" == 'eagle' ]; then
+  elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     cmd "module purge"
     cmd "module unuse ${MODULEPATH}"
     cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
     cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
-    cmd "module load python/2.7.15"
+    cmd "module load python"
     cmd "module load git"
     cmd "module load cppcheck"
     cmd "module load binutils"
@@ -104,7 +104,7 @@ test_configuration() {
   fi
 
   # Set the TMPDIR to disk so it doesn't run out of space
-  if [ "${MACHINE_NAME}" == 'peregrine' ] || [ "${MACHINE_NAME}" == 'eagle' ]; then
+  if [ "${MACHINE_NAME}" == 'eagle' ]; then
     printf "\nMaking and setting TMPDIR to disk...\n"
     cmd "mkdir -p /scratch/${USER}/.tmp"
     cmd "export TMPDIR=/scratch/${USER}/.tmp"
@@ -197,7 +197,7 @@ test_configuration() {
   fi
 
   # Unset the TMPDIR variable after building but before testing during ctest nightly script
-  if [ "${MACHINE_NAME}" == 'peregrine' ] || [ "${MACHINE_NAME}" == 'eagle' ]; then
+  if [ "${MACHINE_NAME}" == 'eagle' ]; then
     CTEST_ARGS="-DUNSET_TMPDIR_VAR:BOOL=TRUE ${CTEST_ARGS}"
   fi
 
@@ -299,12 +299,9 @@ main() {
   printf "============================================================\n"
 
   # Decide what machine we are on
-  if [ "${NREL_CLUSTER}" == 'peregrine' ]; then
-    MACHINE_NAME=peregrine
-  elif [ "${NREL_CLUSTER}" == 'eagle' ]; then
+  if [ "${NREL_CLUSTER}" == 'eagle' ]; then
     MACHINE_NAME=eagle
-  fi
-  if [ $(hostname) == 'rhodes.hpc.nrel.gov' ]; then
+  elif [ $(hostname) == 'rhodes.hpc.nrel.gov' ]; then
     MACHINE_NAME=rhodes
   elif [ $(hostname) == 'jrood-31712s.nrel.gov' ]; then
     MACHINE_NAME=mac
@@ -322,17 +319,13 @@ main() {
     CONFIGURATIONS[3]='clang:7.0.1:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
-  elif [ "${MACHINE_NAME}" == 'peregrine' ]; then
-    CONFIGURATIONS[0]='gcc:7.3.0:true:false:masa'
-    PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing2
-    INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     CONFIGURATIONS[0]='gcc:7.3.0:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'mac' ]; then
     CONFIGURATIONS[0]='gcc:7.3.0:true:false:masa'
-    CONFIGURATIONS[1]='intel:18.0.4:true:false:masa'
+    CONFIGURATIONS[1]='clang:9.0.0-apple:true:false:masa'
     PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   else
     printf "\nMachine name not recognized.\n"
@@ -427,9 +420,7 @@ main() {
   printf "Final steps\n"
   printf "============================================================\n"
  
-  if [ "${MACHINE_NAME}" == 'peregrine' ] || \
-     [ "${MACHINE_NAME}" == 'eagle' ] || \
-     [ "${MACHINE_NAME}" == 'rhodes' ]; then
+  if [ "${MACHINE_NAME}" == 'eagle' ] || [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting permissions...\n"
     cmd "chmod -R a+rX,go-w ${PELEC_TESTING_ROOT_DIR}"
   fi
