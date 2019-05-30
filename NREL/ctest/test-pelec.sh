@@ -274,10 +274,15 @@ test_configuration() {
   cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
-  #printf "\nSaving fcompare golds...\n"
-  #(set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* | tar -czf ${GOLDS_DIR}/fcompare_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar.gz -T -)
+  printf "\n\nGoing to delete these gold files older than 30 days:\n"
+  cmd "cd ${GOLDS_DIR} && find . -mtime +30 -not -path '*/\.*'"
+  printf "\n\nDeleting the files...\n"
+  cmd "cd ${GOLDS_DIR} && find . -mtime +30 -not -path '*/\.*' -delete"
+
+  printf "\nSaving fcompare golds...\n"
+  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* | tar -cf ${GOLDS_DIR}/fcompare_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar -T -)
   printf "\nSaving fextrema golds...\n"
-  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext | tar -czf ${GOLDS_DIR}/fextrema_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar.gz -T -)
+  (set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext | tar -cf ${GOLDS_DIR}/fextrema_golds${EXTRA_BUILD_NAME}-$(date +%Y-%m-%d-%H-%M).tar -T -)
 
   printf "\n"
   printf "************************************************************\n"
