@@ -2,6 +2,9 @@
 
 #Script that runs the nightly PeleC tests at NREL on Rhodes, Mac, or Eagle
 
+#Since MacOS doesn't have crontab, use `sudo launchctl load -w /Library/LaunchDaemons/com.whatever.plist`
+#to load the scheduled command and "unload" to remove it.
+
 set -e
 
 # Decide what machine we are on
