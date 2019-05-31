@@ -186,7 +186,7 @@ test_configuration() {
   #fi
 
   # Run static analysis and let ctest know we have static analysis output
-  if [ "${MACHINE_NAME}" == 'rhodes'] && ["${COMPILER_ID}" == 'gcc@7.4.0' ]; then
+  if [ "${MACHINE_NAME}" == 'rhodes' ] && [ "${COMPILER_ID}" == 'gcc@7.4.0' ]; then
     printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
     cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt || true"
     cmd "cppcheck --enable=all --quiet -j 8 --output-file=${LOGS_DIR}/pelec-static-analysis.txt -I ${PELEC_DIR}/include ${PELEC_DIR}/Submodules/AMReX/Src/Base ${PELEC_DIR}/Submodules/AMReX/Src/Amr ${PELEC_DIR}/Submodules/AMReX/Src/AmrCore ${PELEC_DIR}/Submodules/AMReX/Src/Base ${PELEC_DIR}/Submodules/AMReX/Src/F_Interfaces/AmrCore ${PELEC_DIR}/Submodules/AMReX/Src/Boundary ${PELEC_DIR}/Submodules/AMReX/Tools/C_scripts ${PELEC_DIR}/Submodules/AMReX/Src/F_Interfaces/Base ${PELEC_DIR}/Submodules/AMReX/Src/EB ${PELEC_DIR}/Submodules/PelePhysics/Transport ${PELEC_DIR}/Submodules/PelePhysics/Reactions ${PELEC_DIR}/Submodules/PelePhysics/Support/Fuego/Evaluation ${PELEC_DIR}/Submodules/PelePhysics/Support/Fuego/Mechanism ${PELEC_DIR}/Source ${PELEC_DIR}/Source/param_includes || true"
