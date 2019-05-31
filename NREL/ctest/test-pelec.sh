@@ -294,7 +294,11 @@ project(ID CXX)
 file(WRITE ${CMAKE_BINARY_DIR}/id.txt ${CMAKE_SYSTEM_NAME}/${CMAKE_CXX_COMPILER_ID}/${CMAKE_CXX_COMPILER_VERSION})
 EOL
   printf "\nRunning CMake on ID project...\n"
-  cmd "cd ${PELEC_DIR}/build/id/build && cmake .."
+  unset CMAKE_CXX
+  if [ "${MACHINE_NAME}" == 'mac' ] && [ "${COMPILER_NAME}" == 'gcc' ]; then
+    CMAKE_CXX="CXX=g++-7"
+  fi
+  cmd "cd ${PELEC_DIR}/build/id/build && ${CMAKE_CXX} cmake .."
   ID_FILE=$(cat ${PELEC_DIR}/build/id/build/id.txt)
 
   printf "\nID_FILE contains: ${ID_FILE}\n"
