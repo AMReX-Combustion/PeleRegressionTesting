@@ -61,6 +61,7 @@ test_configuration() {
     cmd "module load cppcheck"
     cmd "module load binutils"
     cmd "module load cmake"
+    cmd "module load rsync"
     cmd "module load python/3.7.3"
     cmd "module load py-matplotlib/2.2.3-py3"
     cmd "module load py-six/1.12.0-py3"
@@ -96,6 +97,7 @@ test_configuration() {
     cmd "module load cppcheck"
     cmd "module load binutils"
     cmd "module load cmake"
+    cmd "module load rsync"
     if [ "${COMPILER_NAME}" == 'gcc' ]; then
       cmd "module load ${COMPILER_NAME}/${COMPILER_VERSION}"
     elif [ "${COMPILER_NAME}" == 'intel' ]; then
