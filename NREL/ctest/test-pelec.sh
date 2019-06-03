@@ -299,6 +299,8 @@ EOL
   unset CMAKE_CXX
   if [ "${MACHINE_NAME}" == 'mac' ] && [ "${COMPILER_NAME}" == 'gcc' ]; then
     CMAKE_CXX="CXX=g++-7"
+  elif [ "${COMPILER_NAME}" == 'intel' ]; then
+    CMAKE_CXX="CXX=icpc"
   fi
   cmd "cd ${PELEC_DIR}/build/id/build && ${CMAKE_CXX} cmake .."
   ID_FILE=$(cat ${PELEC_DIR}/build/id/build/id.txt)
