@@ -47,8 +47,8 @@ test_configuration() {
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
     cmd "module purge"
     cmd "module unuse ${MODULEPATH}"
-    cmd "module use /opt/compilers/modules"
-    cmd "module use /opt/utilities/modules"
+    cmd "module use /opt/compilers/modules-2019-05-08"
+    cmd "module use /opt/utilities/modules-2019-05-08"
     cmd "module use /opt/software/modules/gcc-7.4.0"
     cmd "module load unzip"
     cmd "module load patch"
@@ -90,8 +90,8 @@ test_configuration() {
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     cmd "module purge"
     cmd "module unuse ${MODULEPATH}"
-    cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules"
-    cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules"
+    cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules-2019-05-23"
+    cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules-2019-05-23"
     cmd "module load python"
     cmd "module load git"
     cmd "module load cppcheck"
@@ -259,8 +259,8 @@ test_configuration() {
   # Set essential arguments for the ctest cmake configure step
   CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_CONFIGURE_ARGS}"
 
-  # Set looser diff tolerance for GCC 7.3.0 cases that have more optimization flags on
-  #if [ "${COMPILER_ID}" == 'gcc@7.3.0' ] && [ "${MACHINE_NAME}" != 'mac' ]; then
+  # Set looser diff tolerance for GCC 7 cases that have more optimization flags on
+  #if [ "${COMPILER_ID}" == 'gcc@7.4.0' ] && [ "${MACHINE_NAME}" != 'mac' ]; then
   #  CMAKE_CONFIGURE_ARGS="-DTEST_TOLERANCE:STRING=0.00001 ${CMAKE_CONFIGURE_ARGS}"
   #fi
 
@@ -361,11 +361,11 @@ main() {
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
-    CONFIGURATIONS[0]='gcc:7.3.0:true:false:masa'
+    CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'mac' ]; then
-    CONFIGURATIONS[0]='gcc:7.3.0:true:false:masa'
+    CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
     CONFIGURATIONS[1]='clang:9.0.0-apple:true:false:masa'
     PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   else
