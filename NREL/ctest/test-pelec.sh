@@ -365,7 +365,7 @@ main() {
     PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'mac' ]; then
-    CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
+    CONFIGURATIONS[0]='gcc:9.1.0:true:false:masa'
     CONFIGURATIONS[1]='clang:9.0.0-apple:true:false:masa'
     PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   else
