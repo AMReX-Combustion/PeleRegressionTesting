@@ -301,7 +301,7 @@ EOL
   printf "\nRunning CMake on ID project...\n"
   unset CMAKE_CXX
   if [ "${MACHINE_NAME}" == 'mac' ] && [ "${COMPILER_NAME}" == 'gcc' ]; then
-    CMAKE_CXX="CXX=g++-7"
+    CMAKE_CXX="CXX=g++-9"
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
     CMAKE_CXX="CXX=icpc"
   fi
