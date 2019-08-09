@@ -322,7 +322,7 @@ EOL
   # This only works on Linux
   #(set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
   printf "\nCopying fextrema golds to organized directory...\n"
-  (set -x; rsync -avm --include="*/" --include="*ext.gold" --exclude="*" ${PELEC_DIR}/build/Testing/test_files/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
+  (set -x; rsync -avm --include="*/" --include="*.ext.gold" --include="*.ext" --exclude="*" ${PELEC_DIR}/build/Testing/test_files/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
   # This only works on Linux
   #(set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
 
