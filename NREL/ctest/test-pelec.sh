@@ -224,8 +224,8 @@ test_configuration() {
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
     #printf "Disabling OpenMP in PeleC for address sanitizer...\n"
     #CMAKE_CONFIGURE_ARGS="-DENABLE_OPENMP:BOOL=FALSE ${CMAKE_CONFIGURE_ARGS}"
-    printf "\nTurning off CMA in OpenMPI for Clang to avoid the Read, expected, errno error...\n"
-    cmd "export OMPI_MCA_btl_vader_single_copy_mechanism=none"
+    #printf "\nTurning off CMA in OpenMPI for Clang to avoid the Read, expected, errno error...\n"
+    #cmd "export OMPI_MCA_btl_vader_single_copy_mechanism=none"
   fi
 
   # Explicitly set compilers to MPI compilers
@@ -282,9 +282,9 @@ test_configuration() {
   cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
-  if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
-    cmd "unset OMPI_MCA_btl_vader_single_copy_mechanism"
-  fi
+  #if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
+  #  cmd "unset OMPI_MCA_btl_vader_single_copy_mechanism"
+  #fi
 
   printf "\nGoing to delete these gold files older than 30 days:\n"
   cmd "cd ${GOLDS_DIR} && find . -mtime +30 -not -path '*/\.*'"
