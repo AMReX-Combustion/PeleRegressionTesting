@@ -49,7 +49,7 @@ test_configuration() {
     cmd "module unuse ${MODULEPATH}"
     cmd "module use /opt/compilers/modules-2019-05-08"
     cmd "module use /opt/utilities/modules-2019-05-08"
-    cmd "module use /opt/software/modules/gcc-7.4.0"
+    cmd "module use /opt/software/modules-2019-05-08/gcc-7.4.0"
     cmd "module load unzip"
     cmd "module load patch"
     cmd "module load bzip2"
@@ -257,7 +257,7 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DENABLE_VERIFICATION:BOOL=ON -DTEST_WITH_FCOMPARE:BOOL=ON -DTEST_WITH_FEXTREMA:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
-  CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_TESTING_ROOT_DIR}/pelec -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
+  CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
 
   # Set essential arguments for the ctest cmake configure step
   CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_CONFIGURE_ARGS}"
@@ -364,7 +364,7 @@ main() {
     CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
     CONFIGURATIONS[1]='gcc:4.9.4:true:false:masa'
     CONFIGURATIONS[2]='intel:18.0.4:true:false:masa'
-    CONFIGURATIONS[3]='clang:7.0.1:true:false:masa'
+    #CONFIGURATIONS[3]='clang:7.0.1:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
