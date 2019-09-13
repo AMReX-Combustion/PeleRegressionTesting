@@ -135,7 +135,7 @@ test_configuration() {
   printf "\nInstalling PeleC dependencies using ${COMPILER_ID}...\n"
   #cmd "spack install --only dependencies pelec ${TPL_VARIANTS} %${COMPILER_ID} ${GENERAL_CONSTRAINTS}"
   (set -x; spack install masa %${COMPILER_ID} ${GENERAL_CONSTRAINTS} cxxflags="-std=c++11")
-  cmd "spack install ${MPI_ID} %${COMPILER_ID} ${GENERAL_CONSTRAINTS}"
+  (set -x; spack install ${MPI_ID} %${COMPILER_ID} ${GENERAL_CONSTRAINTS} cxxflags="-std=c++11")
 
   #STAGE_DIR=$(spack location -S)
   #if [ ! -z "${STAGE_DIR}" ]; then
@@ -175,6 +175,7 @@ test_configuration() {
   if [ ! -z "${PELEC_DIR}" ]; then
     printf "\nCleaning PeleC directory...\n"
     cmd "cd ${PELEC_DIR} && git reset --hard origin/development && git clean -df && git status -uno"
+    cmd "mkdir -p ${PELEC_DIR}/build || true"
     cmd "cd ${PELEC_DIR}/build && rm -rf ${PELEC_DIR}/build/*"
     # Update all the submodules recursively in case the previous ctest update failed because of submodule updates
     cmd "cd ${PELEC_DIR} && git submodule update --init --recursive"
