@@ -211,6 +211,7 @@ test_configuration() {
 
   # Default cmake build type
   CMAKE_BUILD_TYPE=RelWithDebInfo
+  VERIFICATION=ON
 
   # Turn on address sanitizer for clang build on rhodes
   if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
@@ -224,7 +225,10 @@ test_configuration() {
     printf "\nWriting asan.supp suppressions file...\n"
     (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++\nleak:hwloc_bitmap_alloc" > ${PELEC_DIR}/build/asan.supp)
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
+    # Can't run ASAN with optimization
     CMAKE_BUILD_TYPE=Debug
+    # Turn off verification tests because they run too long and ASAN uses too much memory with them
+    VERIFICATION=OFF
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_FLAGS:STRING=-fsanitize=address\ -fno-omit-frame-pointer ${CMAKE_CONFIGURE_ARGS}"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
     #printf "Disabling OpenMP in PeleC for address sanitizer...\n"
@@ -258,7 +262,7 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} -DMPI_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DMPI_C_COMPILER:STRING=${MPI_C_COMPILER} -DMPI_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DENABLE_VERIFICATION:BOOL=ON -DTEST_WITH_FCOMPARE:BOOL=ON -DTEST_WITH_FEXTREMA:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DENABLE_VERIFICATION:BOOL=${VERIFICATION} -DTEST_WITH_FCOMPARE:BOOL=ON -DTEST_WITH_FEXTREMA:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
