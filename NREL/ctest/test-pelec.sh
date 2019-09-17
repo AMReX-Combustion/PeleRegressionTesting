@@ -227,8 +227,7 @@ test_configuration() {
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
     # Can't run ASAN with optimization
     CMAKE_BUILD_TYPE=Debug
-    # Turn off verification tests because they run too long and ASAN uses too much memory with them
-    VERIFICATION=OFF
+    #VERIFICATION=OFF
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_FLAGS:STRING=-fsanitize=address\ -fno-omit-frame-pointer ${CMAKE_CONFIGURE_ARGS}"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
     #printf "Disabling OpenMP in PeleC for address sanitizer...\n"
