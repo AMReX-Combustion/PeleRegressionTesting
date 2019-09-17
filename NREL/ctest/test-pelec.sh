@@ -209,6 +209,9 @@ test_configuration() {
   #  CMAKE_CONFIGURE_ARGS="-DENABLE_ALL_WARNINGS:BOOL=TRUE ${CMAKE_CONFIGURE_ARGS}"
   #fi
 
+  # Default cmake build type
+  CMAKE_BUILD_TYPE=RelWithDebInfo
+
   # Turn on address sanitizer for clang build on rhodes
   if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting up address sanitizer in Clang...\n"
@@ -221,6 +224,7 @@ test_configuration() {
     printf "\nWriting asan.supp suppressions file...\n"
     (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++\nleak:hwloc_bitmap_alloc" > ${PELEC_DIR}/build/asan.supp)
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
+    CMAKE_BUILD_TYPE=Debug
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_FLAGS:STRING=-fsanitize=address\ -fno-omit-frame-pointer ${CMAKE_CONFIGURE_ARGS}"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
     #printf "Disabling OpenMP in PeleC for address sanitizer...\n"
@@ -260,7 +264,7 @@ test_configuration() {
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
 
   # Set essential arguments for the ctest cmake configure step
-  CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURE_ARGS}"
 
   # Set looser diff tolerance for GCC 7 cases that have more optimization flags on
   #if [ "${COMPILER_ID}" == 'gcc@7.4.0' ] && [ "${MACHINE_NAME}" != 'mac' ]; then
@@ -364,7 +368,7 @@ main() {
     CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
     CONFIGURATIONS[1]='gcc:4.9.4:true:false:masa'
     CONFIGURATIONS[2]='intel:18.0.4:true:false:masa'
-    #CONFIGURATIONS[3]='clang:7.0.1:true:false:masa'
+    CONFIGURATIONS[3]='clang:7.0.1:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
