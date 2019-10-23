@@ -174,11 +174,12 @@ test_configuration() {
 
   if [ ! -z "${PELEC_DIR}" ]; then
     printf "\nCleaning PeleC directory...\n"
-    cmd "cd ${PELEC_DIR} && git reset --hard origin/development && git clean -df && git status -uno"
+    cmd "cd ${PELEC_DIR} && git clean -df && git submodule foreach --recursive git clean -df"
+    cmd "cd ${PELEC_DIR} && git reset --hard origin/development && git submodule foreach --recursive git reset --hard"
+    cmd "cd ${PELEC_DIR} && git submodule update --init --recursive"
+    cmd "cd ${PELEC_DIR} && git status -uno"
     cmd "mkdir -p ${PELEC_DIR}/build || true"
     cmd "cd ${PELEC_DIR}/build && rm -rf ${PELEC_DIR}/build/*"
-    # Update all the submodules recursively in case the previous ctest update failed because of submodule updates
-    cmd "cd ${PELEC_DIR} && git submodule update --init --recursive"
     cmd "ln -s ${HOME}/combustion/PeleCGoldFiles ${PELEC_DIR}/Testing/PeleCGoldFiles"
   fi
 
