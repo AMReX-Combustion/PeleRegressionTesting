@@ -22,7 +22,7 @@ if [ "${MACHINE_NAME}" == 'eagle' ]; then
 elif [ "${MACHINE_NAME}" == 'mac' ]; then
   PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
 elif [ "${MACHINE_NAME}" == 'rhodes' ]; then
-  PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
+  PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing
 fi
 
 LOG_DIR=${PELEC_TESTING_ROOT_DIR}/logs
