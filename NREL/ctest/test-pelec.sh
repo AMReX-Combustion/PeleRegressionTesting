@@ -4,14 +4,10 @@
 # of machines with a list of configurations for each machine using Spack
 # to satisfy dependencies and submitting results to CDash
 
-# Control over printing and executing commands
-print_cmds=true
-execute_cmds=true
-
 # Function for printing and executing commands
 cmd() {
-  if ${print_cmds}; then echo "+ $@"; fi
-  if ${execute_cmds}; then eval "$@"; fi
+  echo "+ $@";
+  eval "$@";
 }
 
 # Function for testing a single configuration
@@ -47,9 +43,9 @@ test_configuration() {
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
     cmd "module purge"
     cmd "module unuse ${MODULEPATH}"
-    cmd "module use /opt/compilers/modules-2019-05-08"
-    cmd "module use /opt/utilities/modules-2019-05-08"
-    cmd "module use /opt/software/modules-2019-05-08/gcc-7.4.0"
+    cmd "module use /opt/compilers/modules-2020-07"
+    cmd "module use /opt/utilities/modules-2020-07"
+    cmd "module use /opt/software/modules-2020-07/gcc-8.4.0"
     cmd "module load unzip"
     cmd "module load patch"
     cmd "module load bzip2"
@@ -62,23 +58,23 @@ test_configuration() {
     cmd "module load binutils"
     cmd "module load cmake"
     cmd "module load rsync"
-    cmd "module load python/3.7.3"
-    cmd "module load py-matplotlib/2.2.3-py3"
-    cmd "module load py-six/1.12.0-py3"
-    cmd "module load py-numpy/1.16.3-py3"
-    cmd "module load py-cycler/0.10.0-py3"
-    cmd "module load py-dateutil/2.7.5-py3"
-    cmd "module load py-bottleneck/1.2.1-py3"
-    cmd "module load py-cython/0.29.5-py3"
-    cmd "module load py-nose/1.3.7-py3"
-    cmd "module load py-numexpr/2.6.9-py3"
-    cmd "module load py-packaging/17.1-py3"
-    cmd "module load py-pandas/0.24.1-py3"
-    cmd "module load py-pillow/5.4.1-py3"
-    cmd "module load py-pytz/2018.4-py3"
-    cmd "module load py-setuptools/40.8.0-py3"
-    cmd "module load py-kiwisolver/1.0.1-py3"
-    cmd "module load py-pyparsing/2.3.1-py3"
+    cmd "module load python"
+    cmd "module load py-matplotlib"
+    cmd "module load py-six"
+    cmd "module load py-numpy"
+    cmd "module load py-cycler"
+    cmd "module load py-dateutil"
+    cmd "module load py-bottleneck"
+    cmd "module load py-cython"
+    cmd "module load py-nose"
+    cmd "module load py-numexpr"
+    cmd "module load py-packaging"
+    cmd "module load py-pandas"
+    cmd "module load py-pillow"
+    cmd "module load py-pytz"
+    cmd "module load py-setuptools"
+    cmd "module load py-kiwisolver"
+    cmd "module load py-pyparsing"
 
     if [ "${COMPILER_NAME}" == 'gcc' ]; then
       cmd "module load ${COMPILER_NAME}/${COMPILER_VERSION}"
@@ -90,8 +86,8 @@ test_configuration() {
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     cmd "module purge"
     cmd "module unuse ${MODULEPATH}"
-    cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules-2019-05-23"
-    cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules-2019-05-23"
+    cmd "module use /nopt/nrel/ecom/hpacf/compilers/modules-2020-07"
+    cmd "module use /nopt/nrel/ecom/hpacf/utilities/modules-2020-07"
     cmd "module load python"
     cmd "module load git"
     cmd "module load cppcheck"
@@ -135,7 +131,7 @@ test_configuration() {
   printf "\nInstalling PeleC dependencies using ${COMPILER_ID}...\n"
   #cmd "spack install --only dependencies pelec ${TPL_VARIANTS} %${COMPILER_ID} ${GENERAL_CONSTRAINTS}"
   (set -x; spack install masa %${COMPILER_ID} ${GENERAL_CONSTRAINTS} cxxflags="-std=c++11")
-  (set -x; spack install ${MPI_ID} %${COMPILER_ID} ${GENERAL_CONSTRAINTS} cxxflags="-std=c++11")
+  (set -x; spack install ${MPI_ID} %${COMPILER_ID} ${GENERAL_CONSTRAINTS})
 
   #STAGE_DIR=$(spack location -S)
   #if [ ! -z "${STAGE_DIR}" ]; then
@@ -218,12 +214,13 @@ test_configuration() {
   if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting up address sanitizer in Clang...\n"
     printf "\nSetting up address sanitizer blacklist and compile flags...\n"
-    (set -x; printf "src:/opt/compilers/2019-05-08/spack/var/spack/stage/llvm-7.0.1-362a6wfkd7pmjvjpbfd7tpqpgfej7izt/llvm-7.0.1.src/projects/compiler-rt/lib/asan/asan_malloc_linux.cc" > ${PELEC_DIR}/build/asan_blacklist.txt)
-    export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer -fsanitize-blacklist=${PELEC_DIR}/build/asan_blacklist.txt"
+    #(set -x; printf "src:/opt/compilers/2019-05-08/spack/var/spack/stage/llvm-7.0.1-362a6wfkd7pmjvjpbfd7tpqpgfej7izt/llvm-7.0.1.src/projects/compiler-rt/lib/asan/asan_malloc_linux.cc" > ${PELEC_DIR}/build/asan_blacklist.txt)
+    #export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer -fsanitize-blacklist=${PELEC_DIR}/build/asan_blacklist.txt"
+    export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer"
     printf "export CXXFLAGS=${CXXFLAGS}\n"
-    printf "\nCurrently ignoring container overflows...\n"
-    cmd "export ASAN_OPTIONS=detect_container_overflow=0"
-    printf "\nWriting asan.supp suppressions file...\n"
+    #printf "\nCurrently ignoring container overflows...\n"
+    #cmd "export ASAN_OPTIONS=detect_container_overflow=0"
+    #printf "\nWriting asan.supp suppressions file...\n"
     (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++\nleak:hwloc_bitmap_alloc" > ${PELEC_DIR}/build/asan.supp)
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
     # Can't run ASAN with optimization
@@ -262,7 +259,7 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} -DMPI_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DMPI_C_COMPILER:STRING=${MPI_C_COMPILER} -DMPI_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DENABLE_VERIFICATION:BOOL=${VERIFICATION} -DTEST_WITH_FCOMPARE:BOOL=ON -DTEST_WITH_FEXTREMA:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DENABLE_TESTS:BOOL=ON -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
@@ -369,10 +366,10 @@ main() {
   declare -a CONFIGURATIONS
   #CONFIGURATION[n]='compiler_name:compiler_version:mpi_enabled:openmp_enabled:list_of_tpls'
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
-    CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
+    CONFIGURATIONS[0]='gcc:8.4.0:true:false:masa'
     CONFIGURATIONS[1]='gcc:4.9.4:true:false:masa'
-    CONFIGURATIONS[2]='intel:18.0.4:true:false:masa'
-    CONFIGURATIONS[3]='clang:7.0.1:true:false:masa'
+    CONFIGURATIONS[2]='intel:19.0.5:true:false:masa'
+    CONFIGURATIONS[3]='clang:10.0.0:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
