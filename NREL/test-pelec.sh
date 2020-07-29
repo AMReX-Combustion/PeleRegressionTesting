@@ -24,11 +24,8 @@ test_configuration() {
   printf "\n"
 
   # Logic for building up some constraints for use on Spack commands
-  GENERAL_CONSTRAINTS=''
   MPI_ID=''
-  MPI_CONSTRAINTS=''
   BLAS_ID=''
-  BLAS_CONSTRAINTS=''
   if [ "${COMPILER_NAME}" == 'gcc' ] || [ "${COMPILER_NAME}" == 'clang' ]; then
     MPI_ID="openmpi"
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
@@ -114,7 +111,7 @@ test_configuration() {
 
   # Update packages we want to track; it's an error if they don't exist yet, but a soft error
   #printf "\nUpdating MASA (this is fine to error when tests are first run)...\n"
-  #cmd "spack cd masa %${COMPILER_ID} ${GENERAL_CONSTRAINTS} && pwd && git fetch --all && git reset --hard origin/master && git clean -df && git status -uno || true"
+  #cmd "spack cd masa %${COMPILER_ID} && pwd && git fetch --all && git reset --hard origin/master && git clean -df && git status -uno || true"
 
   cmd "cd ${PELEC_TESTING_ROOT_DIR}" # Change directories to avoid any stale file handles
 
@@ -129,9 +126,14 @@ test_configuration() {
   fi
 
   printf "\nInstalling PeleC dependencies using ${COMPILER_ID}...\n"
-  #cmd "spack install --only dependencies pelec ${TPL_VARIANTS} %${COMPILER_ID} ${GENERAL_CONSTRAINTS}"
-  (set -x; spack install masa %${COMPILER_ID} ${GENERAL_CONSTRAINTS} cxxflags="-std=c++11")
-  (set -x; spack install ${MPI_ID} %${COMPILER_ID} ${GENERAL_CONSTRAINTS})
+  #cmd "spack install --only dependencies pelec ${TPL_VARIANTS} %${COMPILER_ID}"
+  if [ "${MACHINE_NAME}" != 'mac' ]; then
+    (set -x; spack install masa %${COMPILER_ID})
+  elif [ "${MACHINE_NAME}" == 'mac' ]; then
+    (set -x; spack install masa %${COMPILER_ID} cxxflags="-std=c++11")
+  fi
+  
+  (set -x; spack install ${MPI_ID} %${COMPILER_ID})
 
   #STAGE_DIR=$(spack location -S)
   #if [ ! -z "${STAGE_DIR}" ]; then
@@ -176,7 +178,7 @@ test_configuration() {
     cmd "cd ${PELEC_DIR} && git status -uno"
     cmd "mkdir -p ${PELEC_DIR}/build || true"
     cmd "cd ${PELEC_DIR}/build && rm -rf ${PELEC_DIR}/build/*"
-    cmd "ln -s ${HOME}/combustion/PeleCGoldFiles ${PELEC_DIR}/Testing/PeleCGoldFiles"
+    cmd "ln -s ${HOME}/combustion/PeleCGoldFiles ${PELEC_DIR}/Tests/PeleCGoldFiles"
   fi
 
   #if [ "${OPENMP_ENABLED}" == 'true' ]; then
@@ -285,7 +287,7 @@ test_configuration() {
   cmd "cd ${PELEC_DIR}/build"
 
   printf "\nRunning CTest at $(date)...\n"
-  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Testing/CTestNightlyScript.cmake"
+  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Tests/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
   #if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
@@ -324,13 +326,13 @@ EOL
 
   printf "\nCopying fcompare golds to organized directory...\n"
   cmd "mkdir -p ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}"
-  (set -x; rsync -avm --include="*/" --include="plt00010**" --exclude="*" ${PELEC_DIR}/build/Testing/test_files/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
+  (set -x; rsync -avm --include="*/" --include="plt00010**" --exclude="*" ${PELEC_DIR}/build/Tests/test_files/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
   # This only works on Linux
-  #(set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type d -name *plt00010* -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
+  #(set -x; cd ${PELEC_DIR}/build/Tests/test_files && find . -type d -name *plt00010* -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
   printf "\nCopying fextrema golds to organized directory...\n"
-  (set -x; rsync -avm --include="*/" --include="*.ext.gold" --include="*.ext" --exclude="*" ${PELEC_DIR}/build/Testing/test_files/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
+  (set -x; rsync -avm --include="*/" --include="*.ext.gold" --include="*.ext" --exclude="*" ${PELEC_DIR}/build/Tests/test_files/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
   # This only works on Linux
-  #(set -x; cd ${PELEC_DIR}/build/Testing/test_files && find . -type f -name *.ext -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
+  #(set -x; cd ${PELEC_DIR}/build/Tests/test_files && find . -type f -name *.ext -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
 
   printf "\n"
   printf "************************************************************\n"
@@ -368,13 +370,13 @@ main() {
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
     CONFIGURATIONS[0]='gcc:8.4.0:true:false:masa'
     CONFIGURATIONS[1]='gcc:4.9.4:true:false:masa'
-    CONFIGURATIONS[2]='intel:19.0.5:true:false:masa'
+    CONFIGURATIONS[2]='intel:18.0.4:true:false:masa'
     CONFIGURATIONS[3]='clang:10.0.0:true:false:masa'
-    PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing-2
+    PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     CONFIGURATIONS[0]='gcc:7.4.0:true:false:masa'
-    PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing2
+    PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'mac' ]; then
     CONFIGURATIONS[0]='gcc:9.1.0:true:false:masa'
