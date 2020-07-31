@@ -60,7 +60,7 @@ test_configuration() {
     cmd "module load py-six"
     cmd "module load py-numpy"
     cmd "module load py-cycler"
-    cmd "module load py-dateutil"
+    cmd "module load py-python-dateutil"
     cmd "module load py-bottleneck"
     cmd "module load py-cython"
     cmd "module load py-nose"
@@ -125,37 +125,22 @@ test_configuration() {
     cmd "module list"
   fi
 
-  printf "\nInstalling PeleC dependencies using ${COMPILER_ID}...\n"
-  #cmd "spack install --only dependencies pelec ${TPL_VARIANTS} %${COMPILER_ID}"
-  if [ "${MACHINE_NAME}" != 'mac' ]; then
-    (set -x; spack install masa %${COMPILER_ID})
-  elif [ "${MACHINE_NAME}" == 'mac' ]; then
-    (set -x; spack install masa %${COMPILER_ID} cxxflags="-std=c++11")
+  printf "\nInstalling PeleC dependencies if necessary using ${COMPILER_ID}...\n"
+  spack find masa %${COMPILER_ID}
+  if [ $? -ne 0 ]; then
+    cmd "spack install masa %${COMPILER_ID}"
   fi
-  
-  (set -x; spack install ${MPI_ID} %${COMPILER_ID})
-
-  #STAGE_DIR=$(spack location -S)
-  #if [ ! -z "${STAGE_DIR}" ]; then
-  #  #Haven't been able to find another robust way to rm with exclude
-  #  printf "\nRemoving all staged directories except Trilinos...\n"
-  #  cmd "cd ${STAGE_DIR} && rm -rf a* b* c* d* e* f* g* h* i* j* k* l* m* n* o* p* q* r* s* tar* ti* u* v* w* x* y* z*"
-  #  #printf "\nRemoving all staged directories except Trilinos and OpenFAST...\n"
-  #  #cmd "cd ${STAGE_DIR} && rm -rf a* b* c* d* e* f* g* h* i* j* k* l* m* n* openmpi* p* q* r* s* tar* u* v* w* x* y* z*"
-  #  #find ${STAGE_DIR}/ -maxdepth 0 -type d -not -name "trilinos*" -exec rm -r {} \;
-  #fi
+  spack find ${MPI_ID} %${COMPILER_ID}
+  if [ $? -ne 0 ]; then
+    cmd "spack install ${MPI_ID} %${COMPILER_ID}"
+  fi
 
   # Refresh available modules (this is only really necessary on the first run of this script
   # because cmake and openmpi will already have been built and module files registered in subsequent runs)
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 
   printf "\nLoading Spack modules into environment for CMake and MPI to use during CTest...\n"
-  if [ "${MACHINE_NAME}" == 'mac' ]; then
-    #cmd "export PATH=$(spack location -i cmake %${COMPILER_ID})/bin:${PATH}"
-    cmd "export PATH=$(spack location -i ${MPI_ID} %${COMPILER_ID})/bin:${PATH}"
-  else
-    cmd "spack load ${MPI_ID} %${COMPILER_ID}"
-  fi
+  cmd "spack load --first ${MPI_ID} %${COMPILER_ID}"
 
   printf "\nSetting variables to pass to CTest...\n"
   CMAKE_CONFIGURE_ARGS=''
@@ -258,21 +243,16 @@ test_configuration() {
   cmd "which cmake"
 
   # CMake configure arguments for compilers
-  CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MPI:BOOL=ON -DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} -DMPI_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DMPI_C_COMPILER:STRING=${MPI_C_COMPILER} -DMPI_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MPI:BOOL=ON -DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DENABLE_TESTS:BOOL=ON -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
 
   # Set essential arguments for the ctest cmake configure step
   CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURE_ARGS}"
-
-  # Set looser diff tolerance for GCC 7 cases that have more optimization flags on
-  #if [ "${COMPILER_ID}" == 'gcc@7.4.0' ] && [ "${MACHINE_NAME}" != 'mac' ]; then
-  #  CMAKE_CONFIGURE_ARGS="-DTEST_TOLERANCE:STRING=0.00001 ${CMAKE_CONFIGURE_ARGS}"
-  #fi
 
   # Allow for oversubscription in OpenMPI
   if [ "${COMPILER_NAME}" != 'intel' ]; then
@@ -289,10 +269,6 @@ test_configuration() {
   printf "\nRunning CTest at $(date)...\n"
   cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Tests/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
-
-  #if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
-  #  cmd "unset OMPI_MCA_btl_vader_single_copy_mechanism"
-  #fi
 
   printf "\nGoing to delete these gold files older than 30 days:\n"
   cmd "cd ${GOLDS_DIR} && find . -mtime +30 -not -path '*/\.*'"
