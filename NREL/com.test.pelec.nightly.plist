@@ -7,7 +7,7 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/jrood/pelec-testing/PeleRegressionTesting/NREL/ctest/test-pelec-cron.sh</string>
+    <string>/Users/jrood/pelec-testing/PeleRegressionTesting/NREL/test-pelec-cron.sh</string>
   </array>
 
   <key>UserName</key>

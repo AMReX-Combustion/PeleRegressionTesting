@@ -26,7 +26,7 @@ elif [ "${MACHINE_NAME}" == 'rhodes' ]; then
 fi
 
 LOG_DIR=${PELEC_TESTING_ROOT_DIR}/logs
-TEST_SCRIPT=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/ctest/test-pelec.sh
+TEST_SCRIPT=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/test-pelec.sh
 
 # Run test script 
 if [ "${MACHINE_NAME}" == 'eagle' ]; then

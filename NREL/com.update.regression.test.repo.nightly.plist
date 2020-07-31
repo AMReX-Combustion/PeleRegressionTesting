@@ -9,7 +9,7 @@
   <array>
     <string>/bin/bash</string>
     <string>-c</string>
-    <string>cd /Users/jrood/pelec-testing/PeleRegressionTesting && ./NREL/ctest/update-regression-test-repo.sh</string>
+    <string>cd /Users/jrood/pelec-testing/PeleRegressionTesting && ./NREL/update-regression-test-repo.sh</string>
   </array>
 
   <key>UserName</key>
