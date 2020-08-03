@@ -355,8 +355,8 @@ main() {
     PELEC_TESTING_ROOT_DIR=/projects/ExaCT/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'mac' ]; then
-    CONFIGURATIONS[0]='gcc:9.1.0:true:false:masa'
-    CONFIGURATIONS[1]='clang:9.0.0-apple:true:false:masa'
+    CONFIGURATIONS[0]='clang:9.0.0-apple:true:false:masa'
+    #CONFIGURATIONS[1]='gcc:9.1.0:true:false:masa'
     PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   else
     printf "\nMachine name not recognized.\n"
@@ -364,7 +364,7 @@ main() {
   fi
  
   PELEC_DIR=${PELEC_TESTING_ROOT_DIR}/pelec
-  BUILD_TEST_DIR=${PELEC_TESTING_ROOT_DIR}/build-test
+  SPACK_CONFIGS_DIR=${PELEC_TESTING_ROOT_DIR}/spack-configs
   PELE_REGRESSION_TESTING_DIR=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting
   LOGS_DIR=${PELEC_TESTING_ROOT_DIR}/logs
   GOLDS_DIR=${PELEC_TESTING_ROOT_DIR}/golds
@@ -374,7 +374,7 @@ main() {
   printf "HOST_NAME: ${HOST_NAME}\n"
   printf "PELEC_TESTING_ROOT_DIR: ${PELEC_TESTING_ROOT_DIR}\n"
   printf "PELEC_DIR: ${PELEC_DIR}\n"
-  printf "BUILD_TEST_DIR: ${BUILD_TEST_DIR}\n"
+  printf "SPACK_CONFIGS_DIR: ${SPACK_CONFIGS_DIR}\n"
   printf "LOGS_DIR: ${LOGS_DIR}\n"
   printf "GOLDS_DIR: ${GOLDS_DIR}\n"
   printf "SPACK_ROOT: ${SPACK_ROOT}\n"
@@ -399,8 +399,8 @@ main() {
     cmd "git clone https://github.com/spack/spack.git ${SPACK_ROOT}"
  
     printf "\nConfiguring Spack...\n"
-    cmd "git clone https://github.com/jrood-nrel/spack-configs.git ${BUILD_TEST_DIR}"
-    cmd "cd ${BUILD_TEST_DIR}/scripts && ./setup-spack.sh"
+    cmd "git clone https://github.com/jrood-nrel/spack-configs.git ${SPACK_CONFIGS_DIR}"
+    cmd "cd ${SPACK_CONFIGS_DIR}/scripts && ./setup-spack.sh"
  
     # Checkout PeleC
     printf "\nCloning PeleC repo...\n"
