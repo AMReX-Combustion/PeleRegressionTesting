@@ -160,7 +160,8 @@ test_configuration() {
     printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
     cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt || true"
     cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg cfg || true"
-    cmd "cppcheck --enable=all --project=compile_commands.json -j 32 -i${PELEC_DIR}/Submodules/AMReX/Src --output-file=${LOGS_DIR}/pelec-static-analysis.txt || true"
+    cmd "cppcheck --enable=all --project=compile_commands.json -j 32 -i${PELEC_DIR}/Submodules/AMReX/Src --output-file=${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
+    cmd "awk -v nlines=2 '/Submodules/ {for (i=0; i<nlines; i++) {getline}; next} 1' < ${LOGS_DIR}/pelec-static-analysis-temp.txt > ${LOGS_DIR}/pelec-static-analysis.txt"
     cmd "printf \"%s warnings\n\" \"$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)\" >> ${LOGS_DIR}/pelec-static-analysis.txt"
     CTEST_ARGS="-DHAVE_STATIC_ANALYSIS_OUTPUT:BOOL=TRUE -DSTATIC_ANALYSIS_LOG=${LOGS_DIR}/pelec-static-analysis.txt ${CTEST_ARGS}"
   fi
