@@ -155,6 +155,16 @@ test_configuration() {
   # Set the extra identifiers for CDash build description
   EXTRA_BUILD_NAME="-${COMPILER_NAME}-${COMPILER_VERSION}"
 
+  # Run static analysis and let ctest know we have static analysis output
+  if [ "${MACHINE_NAME}" == 'rhodes' ] && [ "${COMPILER_ID}" == 'gcc@4.9.4' ]; then
+    printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
+    cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt || true"
+    cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg cfg || true"
+    cmd "cppcheck --enable=all --project=compile_commands.json -j 32 -i${PELEC_DIR}/Submodules/AMReX/Src --output-file=${LOGS_DIR}/pelec-static-analysis.txt || true"
+    cmd "printf \"%s warnings\n\" \"$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)\" >> ${LOGS_DIR}/pelec-static-analysis.txt"
+    CTEST_ARGS="-DHAVE_STATIC_ANALYSIS_OUTPUT:BOOL=TRUE -DSTATIC_ANALYSIS_LOG=${LOGS_DIR}/pelec-static-analysis.txt ${CTEST_ARGS}"
+  fi
+
   if [ ! -z "${PELEC_DIR}" ]; then
     printf "\nCleaning PeleC directory...\n"
     cmd "cd ${PELEC_DIR} && git clean -df && git submodule foreach --recursive git clean -df"
@@ -171,15 +181,6 @@ test_configuration() {
   #  cmd "export OMP_NUM_THREADS=1"
   #  cmd "export OMP_PROC_BIND=false"
   #fi
-
-  # Run static analysis and let ctest know we have static analysis output
-  if [ "${MACHINE_NAME}" == 'rhodes' ] && [ "${COMPILER_ID}" == 'gcc@8.4.0' ]; then
-    printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
-    cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt || true"
-    cmd "cppcheck --enable=all --quiet -j 32 -DAMREX_SPACEDIM=3 -DBL_SPACEDIM=3 --max-configs=16 --output-file=${LOGS_DIR}/pelec-static-analysis.txt ${PELEC_DIR}/SourceCpp || true"
-    cmd "printf \"%s warnings\n\" \"$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)\" >> ${LOGS_DIR}/pelec-static-analysis.txt"
-    CTEST_ARGS="-DHAVE_STATIC_ANALYSIS_OUTPUT:BOOL=TRUE -DSTATIC_ANALYSIS_LOG=${LOGS_DIR}/pelec-static-analysis.txt ${CTEST_ARGS}"
-  fi
 
   # Unset the TMPDIR variable after building but before testing during ctest nightly script
   if [ "${MACHINE_NAME}" == 'eagle' ]; then
@@ -243,7 +244,7 @@ test_configuration() {
   cmd "which cmake"
 
   # CMake configure arguments for compilers
-  CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MPI:BOOL=ON -DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON -DPELEC_ENABLE_MPI:BOOL=ON -DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
 
   # CMake configure arguments testing options
   CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
