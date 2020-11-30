@@ -160,7 +160,7 @@ test_configuration() {
     printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
     cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt || true"
     cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg cfg || true"
-    cmd "cppcheck --enable=all --project=compile_commands.json -j 32 -i${PELEC_DIR}/Submodules/AMReX/Src --output-file=${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
+    cmd "cppcheck --enable=all --inline-suppr --project=compile_commands.json -j 32 -i${PELEC_DIR}/Submodules/AMReX/Src --output-file=${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
     cmd "awk -v nlines=2 '/Submodules/ {for (i=0; i<nlines; i++) {getline}; next} 1' < ${LOGS_DIR}/pelec-static-analysis-temp.txt > ${LOGS_DIR}/pelec-static-analysis.txt"
     WARNINGS1=$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)
     WARNINGS2=$(bc <<< "$WARNINGS1/3")
