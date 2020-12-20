@@ -160,7 +160,7 @@ test_configuration() {
     printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
     cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt ${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
     cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg cfg || true"
-    cmd "cppcheck --inline-suppr --suppress=unmatchedSuppression --std=c++14 --language=c++ --enable=all --project=compile_commands.json -j 32 -i ${PELEC_DIR}/Submodules/AMReX/Src -i ${PELEC_DIR}/Submodules/GoogleTest --output-file=${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
+    cmd "cppcheck --inline-suppr --std=c++14 --language=c++ --enable=all --project=compile_commands.json -j 32 -i ${PELEC_DIR}/Submodules/AMReX/Src -i ${PELEC_DIR}/Submodules/GoogleTest --output-file=${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
     cmd "awk -v nlines=2 '/Submodules\/AMReX/ || /Submodules\/GoogleTest/ {for (i=0; i<nlines; i++) {getline}; next} 1' < ${LOGS_DIR}/pelec-static-analysis-temp.txt > ${LOGS_DIR}/pelec-static-analysis.txt"
     WARNINGS1=$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)
     WARNINGS2=$(bc <<< "$WARNINGS1/3")
@@ -217,6 +217,7 @@ test_configuration() {
     # Can't run ASAN with optimization
     CMAKE_BUILD_TYPE=Debug
     VERIFICATION=OFF
+    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_FLAGS:STRING=-fsanitize=address\ -fno-omit-frame-pointer ${CMAKE_CONFIGURE_ARGS}"
     #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
     #printf "Disabling OpenMP in PeleC for address sanitizer...\n"
