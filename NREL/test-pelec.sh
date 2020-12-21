@@ -191,6 +191,10 @@ test_configuration() {
     CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
   fi
 
+  if [ "${COMPILER_NAME}" == 'intel' ]; then
+    CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=mpiicpc -DCMAKE_CXX_COMPILER=mpiicc ${CMAKE_CONFIGURE_ARGS}"
+  fi
+
   # Give CMake a hint to find Python3
   PYTHON_EXE=$(which python3)
 
