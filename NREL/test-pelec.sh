@@ -191,21 +191,10 @@ test_configuration() {
     CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
   fi
 
-  # Explicitly set compilers to MPI compilers
-  if [ "${COMPILER_NAME}" == 'gcc' ] || [ "${COMPILER_NAME}" == 'clang' ]; then
-    MPI_CXX_COMPILER=mpicxx
-    MPI_C_COMPILER=mpicc
-  elif [ "${COMPILER_NAME}" == 'intel' ]; then
-    MPI_CXX_COMPILER=mpiicpc
-    MPI_C_COMPILER=mpiicc
-  fi
-
   # Give CMake a hint to find Python3
   PYTHON_EXE=$(which python3)
 
-  printf "\nListing cmake and compilers that will be used in ctest...\n"
-  cmd "which ${MPI_CXX_COMPILER}"
-  cmd "which ${MPI_C_COMPILER}"
+  printf "\nListing cmake and MPI that will be used in ctest...\n"
   cmd "which mpiexec"
   cmd "which cmake"
 
