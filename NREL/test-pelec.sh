@@ -152,22 +152,6 @@ test_configuration() {
     fi
   done
 
-  # Set the extra identifiers for CDash build description
-  EXTRA_BUILD_NAME="-${COMPILER_NAME}-${COMPILER_VERSION}"
-
-  # Run static analysis and let ctest know we have static analysis output
-  if [ "${MACHINE_NAME}" == 'rhodes' ] && [ "${COMPILER_ID}" == 'gcc@4.9.4' ]; then
-    printf "\nRunning cppcheck static analysis (PeleC not updated until after this step)...\n"
-    cmd "rm ${LOGS_DIR}/pelec-static-analysis.txt ${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
-    cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg cfg || true"
-    cmd "cppcheck --inline-suppr --std=c++14 --language=c++ --enable=all --project=compile_commands.json -j 32 -i ${PELEC_DIR}/Submodules/AMReX/Src -i ${PELEC_DIR}/Submodules/GoogleTest --output-file=${LOGS_DIR}/pelec-static-analysis-temp.txt || true"
-    cmd "awk -v nlines=2 '/Submodules\/AMReX/ || /Submodules\/GoogleTest/ {for (i=0; i<nlines; i++) {getline}; next} 1' < ${LOGS_DIR}/pelec-static-analysis-temp.txt > ${LOGS_DIR}/pelec-static-analysis.txt"
-    WARNINGS1=$(wc -l < ${LOGS_DIR}/pelec-static-analysis.txt | xargs echo -n)
-    WARNINGS2=$(bc <<< "$WARNINGS1/3")
-    cmd "printf \"%s warnings\n\" \"${WARNINGS2}\" >> ${LOGS_DIR}/pelec-static-analysis.txt"
-    CTEST_ARGS="-DHAVE_STATIC_ANALYSIS_OUTPUT:BOOL=TRUE -DSTATIC_ANALYSIS_LOG=${LOGS_DIR}/pelec-static-analysis.txt ${CTEST_ARGS}"
-  fi
-
   if [ ! -z "${PELEC_DIR}" ]; then
     printf "\nCleaning PeleC directory...\n"
     cmd "cd ${PELEC_DIR} && git clean -df && git submodule foreach --recursive git clean -df"
@@ -179,62 +163,41 @@ test_configuration() {
     cmd "ln -s ${HOME}/combustion/PeleCGoldFiles ${PELEC_DIR}/Tests/PeleCGoldFiles"
   fi
 
-  #if [ "${OPENMP_ENABLED}" == 'true' ]; then
-  #  printf "\nSetting OpenMP stuff...\n"
-  #  cmd "export OMP_NUM_THREADS=1"
-  #  cmd "export OMP_PROC_BIND=false"
-  #fi
+  # Default cmake build type
+  CMAKE_BUILD_TYPE=RelWithDebInfo
+
+  # Set the extra identifiers for CDash build description
+  EXTRA_BUILD_NAME="-${COMPILER_NAME}-${COMPILER_VERSION}"
+
+  # Run static analysis on only one particular build
+  if [ "${MACHINE_NAME}" == 'rhodes' ] && [ "${COMPILER_NAME}" == 'clang' ]; then
+    CTEST_ARGS="-DRUN_CODE_ANALYSIS:BOOL=TRUE ${CTEST_ARGS}"
+  fi
 
   # Unset the TMPDIR variable after building but before testing during ctest nightly script
   if [ "${MACHINE_NAME}" == 'eagle' ]; then
     CTEST_ARGS="-DUNSET_TMPDIR_VAR:BOOL=TRUE ${CTEST_ARGS}"
   fi
 
-  # Turn on all warnings unless we're gcc 4.9.4
-  #if [ "${COMPILER_ID}" == 'gcc@4.9.4' ]; then
-  #  CMAKE_CONFIGURE_ARGS="-DENABLE_ALL_WARNINGS:BOOL=FALSE ${CMAKE_CONFIGURE_ARGS}"
-  #else
-  #  CMAKE_CONFIGURE_ARGS="-DENABLE_ALL_WARNINGS:BOOL=TRUE ${CMAKE_CONFIGURE_ARGS}"
-  #fi
-
-  # Default cmake build type
-  CMAKE_BUILD_TYPE=RelWithDebInfo
-  VERIFICATION=ON
-
   # Turn on address sanitizer for clang build on rhodes
   if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting up address sanitizer in Clang...\n"
-    printf "\nSetting up address sanitizer blacklist and compile flags...\n"
-    #(set -x; printf "src:/opt/compilers/2019-05-08/spack/var/spack/stage/llvm-7.0.1-362a6wfkd7pmjvjpbfd7tpqpgfej7izt/llvm-7.0.1.src/projects/compiler-rt/lib/asan/asan_malloc_linux.cc" > ${PELEC_DIR}/build/asan_blacklist.txt)
-    #export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer -fsanitize-blacklist=${PELEC_DIR}/build/asan_blacklist.txt"
     export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer"
     printf "export CXXFLAGS=${CXXFLAGS}\n"
-    #printf "\nCurrently ignoring container overflows...\n"
-    #cmd "export ASAN_OPTIONS=detect_container_overflow=0"
-    #printf "\nWriting asan.supp suppressions file...\n"
     (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++\nleak:hwloc_bitmap_alloc" > ${PELEC_DIR}/build/asan.supp)
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
     # Can't run ASAN with optimization
     CMAKE_BUILD_TYPE=Debug
-    VERIFICATION=OFF
     CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
-    #CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_FLAGS:STRING=-fsanitize=address\ -fno-omit-frame-pointer ${CMAKE_CONFIGURE_ARGS}"
-    #CMAKE_CONFIGURE_ARGS="-DCMAKE_LINKER=clang++ -DCMAKE_CXX_LINK_EXECUTABLE=clang++ -DCMAKE_CXX_FLAGS:STRING=\'-fsanitize=address -fno-omit-frame-pointer\' -DCMAKE_EXE_LINKER_FLAGS:STRING=-fsanitize=address ${CMAKE_CONFIGURE_ARGS}"
-    #printf "Disabling OpenMP in PeleC for address sanitizer...\n"
-    #CMAKE_CONFIGURE_ARGS="-DENABLE_OPENMP:BOOL=FALSE ${CMAKE_CONFIGURE_ARGS}"
-    #printf "\nTurning off CMA in OpenMPI for Clang to avoid the Read, expected, errno error...\n"
-    #cmd "export OMPI_MCA_btl_vader_single_copy_mechanism=none"
   fi
 
   # Explicitly set compilers to MPI compilers
   if [ "${COMPILER_NAME}" == 'gcc' ] || [ "${COMPILER_NAME}" == 'clang' ]; then
     MPI_CXX_COMPILER=mpicxx
     MPI_C_COMPILER=mpicc
-    MPI_FORTRAN_COMPILER=mpifort
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
     MPI_CXX_COMPILER=mpiicpc
     MPI_C_COMPILER=mpiicc
-    MPI_FORTRAN_COMPILER=mpiifort
   fi
 
   # Give CMake a hint to find Python3
@@ -243,21 +206,14 @@ test_configuration() {
   printf "\nListing cmake and compilers that will be used in ctest...\n"
   cmd "which ${MPI_CXX_COMPILER}"
   cmd "which ${MPI_C_COMPILER}"
-  cmd "which ${MPI_FORTRAN_COMPILER}"
   cmd "which mpiexec"
   cmd "which cmake"
 
-  # CMake configure arguments for compilers
-  CMAKE_CONFIGURE_ARGS="-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON -DPELEC_ENABLE_MPI:BOOL=ON -DCMAKE_CXX_COMPILER:STRING=${MPI_CXX_COMPILER} -DCMAKE_C_COMPILER:STRING=${MPI_C_COMPILER} -DCMAKE_Fortran_COMPILER:STRING=${MPI_FORTRAN_COMPILER} ${CMAKE_CONFIGURE_ARGS}"
-
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
-
-  # Set essential arguments for the ctest cmake configure step
-  CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURE_ARGS}"
 
   # Allow for oversubscription in OpenMPI
   if [ "${COMPILER_NAME}" != 'intel' ]; then
