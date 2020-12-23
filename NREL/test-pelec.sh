@@ -218,7 +218,7 @@ test_configuration() {
   cmd "cd ${PELEC_DIR}/build"
 
   printf "\nRunning CTest at $(date)...\n"
-  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -S ${PELEC_DIR}/Tests/CTestNightlyScript.cmake"
+  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -VV -S ${PELEC_DIR}/Tests/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
   printf "\nGoing to delete these gold files older than 30 days:\n"
