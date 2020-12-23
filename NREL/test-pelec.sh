@@ -169,11 +169,6 @@ test_configuration() {
   # Set the extra identifiers for CDash build description
   EXTRA_BUILD_NAME="-${COMPILER_NAME}-${COMPILER_VERSION}"
 
-  # Run static analysis on only one particular build
-  if [ "${MACHINE_NAME}" == 'rhodes' ] && [ "${COMPILER_NAME}" == 'clang' ]; then
-    CTEST_ARGS="-DRUN_CODE_ANALYSIS:BOOL=TRUE ${CTEST_ARGS}"
-  fi
-
   # Unset the TMPDIR variable after building but before testing during ctest nightly script
   if [ "${MACHINE_NAME}" == 'eagle' ]; then
     CTEST_ARGS="-DUNSET_TMPDIR_VAR:BOOL=TRUE ${CTEST_ARGS}"
@@ -188,7 +183,9 @@ test_configuration() {
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
     # Can't run ASAN with optimization
     CMAKE_BUILD_TYPE=Debug
-    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+    # Also run static analysis on this build
+    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CPPCHECK:BOOL=ON -DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+    CTEST_ARGS="-DRUN_CODE_ANALYSIS:BOOL=TRUE ${CTEST_ARGS}"
   fi
 
   if [ "${COMPILER_NAME}" == 'intel' ]; then
