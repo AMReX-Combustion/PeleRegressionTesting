@@ -78,6 +78,7 @@ test_configuration() {
     elif [ "${COMPILER_NAME}" == 'clang' ]; then
       cmd "module load llvm/${COMPILER_VERSION}"
     elif [ "${COMPILER_NAME}" == 'intel' ]; then
+      cmd "module load gcc"
       cmd "module load ${INTEL_COMPILER_MODULE}"
     fi
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
@@ -184,6 +185,7 @@ test_configuration() {
     # Can't run ASAN with optimization
     CMAKE_BUILD_TYPE=Debug
     # Also run static analysis on this build
+    cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg/std.cfg"
     CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CPPCHECK:BOOL=ON -DPELEC_ENABLE_CLANG_TIDY:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
     CTEST_ARGS="-DRUN_CODE_ANALYSIS:BOOL=TRUE ${CTEST_ARGS}"
   fi
