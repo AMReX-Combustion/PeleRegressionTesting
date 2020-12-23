@@ -190,6 +190,8 @@ test_configuration() {
 
   if [ "${COMPILER_NAME}" == 'intel' ]; then
     CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=mpiicpc -DCMAKE_C_COMPILER=mpiicc ${CMAKE_CONFIGURE_ARGS}"
+  else
+    CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc ${CMAKE_CONFIGURE_ARGS}"
   fi
 
   # Give CMake a hint to find Python3
