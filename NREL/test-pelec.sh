@@ -300,9 +300,8 @@ main() {
   #CONFIGURATION[n]='compiler_name:compiler_version:mpi_enabled:openmp_enabled:list_of_tpls'
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
     CONFIGURATIONS[0]='gcc:8.4.0:true:false:masa'
-    CONFIGURATIONS[1]='gcc:4.9.4:true:false:masa'
-    CONFIGURATIONS[2]='intel:18.0.4:true:false:masa'
-    CONFIGURATIONS[3]='clang:10.0.0:true:false:masa'
+    CONFIGURATIONS[1]='intel:18.0.4:true:false:masa'
+    CONFIGURATIONS[2]='clang:10.0.0:true:false:masa'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
