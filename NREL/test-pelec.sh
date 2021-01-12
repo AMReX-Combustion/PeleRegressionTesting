@@ -178,7 +178,7 @@ test_configuration() {
   # Turn on address sanitizer for clang build on rhodes
   if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting up address sanitizer in Clang...\n"
-    export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+    export CXXFLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer"
     printf "export CXXFLAGS=${CXXFLAGS}\n"
     (set -x; printf "leak:libopen-pal\nleak:libmpi\nleak:libmasa\nleak:libc++\nleak:hwloc_bitmap_alloc" > ${PELEC_DIR}/build/asan.supp)
     cmd "export LSAN_OPTIONS=suppressions=${PELEC_DIR}/build/asan.supp"
