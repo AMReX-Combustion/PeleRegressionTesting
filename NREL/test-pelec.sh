@@ -16,7 +16,6 @@ test_configuration() {
   printf "************************************************************\n"
   printf "Testing PeleC with:\n"
   printf "${COMPILER_ID}\n"
-  printf "MPI_ENABLED: ${MPI_ENABLED}\n"
   printf "OPENMP_ENABLED: ${OPENMP_ENABLED}\n"
   printf "LIST_OF_TPLS: ${LIST_OF_TPLS}\n"
   printf "at $(date)\n"
@@ -100,6 +99,7 @@ test_configuration() {
     cmd "module load binutils"
     cmd "module load cmake"
     cmd "module load rsync"
+    cmd "module load mpt"
     if [ "${COMPILER_NAME}" == 'gcc' ]; then
       cmd "module load ${COMPILER_NAME}/${COMPILER_VERSION}"
     elif [ "${COMPILER_NAME}" == 'intel' ]; then
@@ -124,21 +124,17 @@ test_configuration() {
 
   cmd "cd ${PELEC_TESTING_ROOT_DIR}" # Change directories to avoid any stale file handles
 
-  TPL_VARIANTS=''
-  TPLS=(${LIST_OF_TPLS//;/ })
-  for TPL in ${TPLS[*]}; do
-    TPL_VARIANTS+="+${TPL}"
-  done
+  #TPL_VARIANTS=''
+  #TPLS=(${LIST_OF_TPLS//;/ })
+  #for TPL in ${TPLS[*]}; do
+  #  TPL_VARIANTS+="+${TPL}"
+  #done
 
   if [ "${MACHINE_NAME}" != 'mac' ]; then
     cmd "module list"
   fi
 
   printf "\nInstalling PeleC dependencies if necessary using ${COMPILER_ID}...\n"
-  spack find masa %${COMPILER_ID}
-  if [ $? -ne 0 ]; then
-    cmd "spack install masa %${COMPILER_ID}"
-  fi
   spack find ${MPI_ID} %${COMPILER_ID}
   if [ $? -ne 0 ]; then
     cmd "spack install ${MPI_ID} %${COMPILER_ID}"
@@ -155,6 +151,10 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS=''
   for TPL in ${TPLS[*]}; do
     if [ "${TPL}" == 'masa' ]; then
+      spack find masa %${COMPILER_ID}
+      if [ $? -ne 0 ]; then
+        cmd "spack install masa %${COMPILER_ID}"
+      fi
       MASA_DIR=$(spack location -i masa %${COMPILER_ID})
       CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_DIR:PATH=${MASA_DIR} ${CMAKE_CONFIGURE_ARGS}"
       printf "MASA_DIR=${MASA_DIR}\n"
@@ -163,6 +163,19 @@ test_configuration() {
       CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_SUNDIALS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
     fi
   done
+
+  # Default cmake build type
+  CMAKE_BUILD_TYPE=RelWithDebInfo
+
+  # Set the extra identifiers for CDash build description
+  EXTRA_BUILD_NAME="-${COMPILER_NAME}-${COMPILER_VERSION}"
+
+  # Set CUDA stuff for Eagle
+  if [ "${MACHINE_NAME}" == 'eagle' ]; then
+    EXTRA_BUILD_NAME="-nvcc-${CUDA_VERSION}${EXTRA_BUILD_NAME}"
+    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CUDA:BOOL=ON -DAMReX_CUDA_ARCH:STRING=7.0 -DGPUS_PER_NODE:STRING=2 -DGPUS_PER_SOCKET:STRING=1 ${CMAKE_CONFIGURE_ARGS}"
+    CTEST_ARGS="-DUNSET_TMPDIR_VAR:BOOL=TRUE -DCTEST_DISABLE_OVERLAPPING_TESTS:BOOL=TRUE ${CTEST_ARGS}"
+  fi
 
   if [ ! -z "${PELEC_DIR}" ]; then
     printf "\nCleaning PeleC directory...\n"
@@ -177,19 +190,6 @@ test_configuration() {
       CTEST_ARGS="-DUSE_LATEST_AMREX:BOOL=TRUE ${CTEST_ARGS}"
       EXTRA_BUILD_NAME="${EXTRA_BUILD_NAME}-amrex_dev"
     fi
-  fi
-
-  # Default cmake build type
-  CMAKE_BUILD_TYPE=RelWithDebInfo
-
-  # Set the extra identifiers for CDash build description
-  EXTRA_BUILD_NAME="-${COMPILER_NAME}-${COMPILER_VERSION}"
-
-  # Set CUDA stuff for Eagle
-  if [ "${MACHINE_NAME}" == 'eagle' ]; then
-    EXTRA_BUILD_NAME="-nvcc-${CUDA_VERSION}${EXTRA_BUILD_NAME}"
-    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CUDA:BOOL=ON -DAMReX_CUDA_ARCH:STRING=7.0 -DGPUS_PER_NODE:STRING=2 -DGPUS_PER_SOCKET:STRING=1 ${CMAKE_CONFIGURE_ARGS}"
-    CTEST_ARGS="-DUNSET_TMPDIR_VAR:BOOL=TRUE -DCTEST_DISABLE_OVERLAPPING_TESTS:BOOL=TRUE ${CTEST_ARGS}"
   fi
 
   # Turn on address sanitizer for clang build on rhodes
@@ -207,10 +207,17 @@ test_configuration() {
     CTEST_ARGS="-DRUN_CODE_ANALYSIS:BOOL=TRUE ${CTEST_ARGS}"
   fi
 
-  if [ "${COMPILER_NAME}" == 'intel' ]; then
-    CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=mpiicpc -DCMAKE_C_COMPILER=mpiicc ${CMAKE_CONFIGURE_ARGS}"
-  else
-    CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc ${CMAKE_CONFIGURE_ARGS}"
+  # Explicitly set compilers to MPI compilers
+  if [ "${COMPILER_NAME}" != 'intel' ]; then
+    CXX_COMPILER=mpicxx
+    C_COMPILER=mpicc
+    if [ "${MACHINE_NAME}" == 'eagle' ]; then
+      CXX_COMPILER=g++
+      C_COMPILER=gcc
+    fi
+  elif [ "${COMPILER_NAME}" == 'intel' ]; then
+    CXX_COMPILER=mpiicpc
+    C_COMPILER=mpiicc
   fi
 
   # Give CMake a hint to find Python3
@@ -221,7 +228,7 @@ test_configuration() {
   cmd "which cmake"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
@@ -286,7 +293,6 @@ EOL
   printf "************************************************************\n"
   printf "Done testing PeleC with:\n"
   printf "${COMPILER_ID}\n"
-  printf "MPI_ENABLED: ${MPI_ENABLED}\n"
   printf "OPENMP_ENABLED: ${OPENMP_ENABLED}\n"
   printf "LIST_OF_TPLS: ${LIST_OF_TPLS}\n"
   printf "at $(date)\n"
@@ -314,21 +320,21 @@ main() {
  
   # Set configurations to test for each machine
   declare -a CONFIGURATIONS
-  #CONFIGURATION[n]='compiler_name:compiler_version:mpi_enabled:openmp_enabled:use_latest_amrex:list_of_tpls'
+  #CONFIGURATION[n]='compiler_name:compiler_version:openmp_enabled:use_latest_amrex:list_of_tpls'
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
-    CONFIGURATIONS[0]='intel:18.0.4:true:false:false:masa;sundials'
-    CONFIGURATIONS[1]='clang:10.0.0:true:false:false:masa;sundials'
-    CONFIGURATIONS[2]='gcc:8.4.0:true:false:true:masa;sundials'
-    CONFIGURATIONS[3]='gcc:8.4.0:true:false:false:masa;sundials'
+    CONFIGURATIONS[0]='intel:18.0.4:false:false:masa;sundials'
+    CONFIGURATIONS[1]='clang:10.0.0:false:false:masa;sundials'
+    CONFIGURATIONS[2]='gcc:8.4.0:false:true:masa;sundials'
+    CONFIGURATIONS[3]='gcc:8.4.0:false:false:masa;sundials'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
-    CONFIGURATIONS[0]='gcc:8.4.0:true:false:true:masa;sundials'
-    CONFIGURATIONS[1]='gcc:8.4.0:true:false:false:masa;sundials'
-    PELEC_TESTING_ROOT_DIR=/projects/exact/pelec-testing
+    CONFIGURATIONS[0]='gcc:8.4.0:false:true:sundials'
+    CONFIGURATIONS[1]='gcc:8.4.0:false:false:sundials'
+    PELEC_TESTING_ROOT_DIR=/scratch/jrood/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   #elif [ "${MACHINE_NAME}" == 'mac' ]; then
-  #  CONFIGURATIONS[0]='clang:12.0.0-apple:true:false:false:masa;sundials'
+  #  CONFIGURATIONS[0]='clang:12.0.0-apple:false:false:masa;sundials'
   #  PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   else
     printf "\nMachine name not recognized.\n"
@@ -351,7 +357,7 @@ main() {
   printf "GOLDS_DIR: ${GOLDS_DIR}\n"
   printf "SPACK_ROOT: ${SPACK_ROOT}\n"
   printf "Testing configurations:\n"
-  printf " compiler_name:compiler_version:mpi_enabled:openmp_enabled:use_latest_amrex:list_of_tpls\n"
+  printf " compiler_name:compiler_version:openmp_enabled:use_latest_amrex:list_of_tpls\n"
   for CONFIGURATION in "${CONFIGURATIONS[@]}"; do
     printf " ${CONFIGURATION}\n"
   done
@@ -413,10 +419,9 @@ main() {
     CONFIG=(${CONFIGURATION//:/ })
     COMPILER_NAME=${CONFIG[0]}
     COMPILER_VERSION=${CONFIG[1]}
-    MPI_ENABLED=${CONFIG[2]}
-    OPENMP_ENABLED=${CONFIG[3]}
-    USE_LATEST_AMREX=${CONFIG[4]}
-    LIST_OF_TPLS=${CONFIG[5]}
+    OPENMP_ENABLED=${CONFIG[2]}
+    USE_LATEST_AMREX=${CONFIG[3]}
+    LIST_OF_TPLS=${CONFIG[4]}
 
     printf "\nRemoving previous test log for uploading to CDash...\n"
     cmd "rm ${LOGS_DIR}/pelec-test-log.txt"

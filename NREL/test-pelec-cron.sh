@@ -18,7 +18,7 @@ fi
   
 # Set root testing directory
 if [ "${MACHINE_NAME}" == 'eagle' ]; then
-  PELEC_TESTING_ROOT_DIR=/projects/exact/pelec/pelec-testing
+  PELEC_TESTING_ROOT_DIR=/scratch/jrood/pelec-testing
 elif [ "${MACHINE_NAME}" == 'mac' ]; then
   PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
 elif [ "${MACHINE_NAME}" == 'rhodes' ]; then
@@ -30,7 +30,7 @@ TEST_SCRIPT=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/test-pelec.sh
 
 # Run test script 
 if [ "${MACHINE_NAME}" == 'eagle' ]; then
-  cd ${LOG_DIR} && sbatch -J test-pelec -N 1 -t 4:00:00 -A hfm -p standard -o "%x.o%j" --gres=gpu:1 ${TEST_SCRIPT}
+  cd ${LOG_DIR} && sbatch -J test-pelec -N 1 -t 1:00:00 -A exact -p debug -o "%x.o%j" --gres=gpu:2 ${TEST_SCRIPT}
 elif [ "${MACHINE_NAME}" == 'mac' ]; then
   cd ${LOG_DIR} && nice ${TEST_SCRIPT} &> "test-pelec-$(date +%Y-%m-%d).log"
 elif [ "${MACHINE_NAME}" == 'rhodes' ]; then
