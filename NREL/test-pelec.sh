@@ -125,7 +125,7 @@ test_configuration() {
   cmd "cd ${PELEC_TESTING_ROOT_DIR}" # Change directories to avoid any stale file handles
 
   #TPL_VARIANTS=''
-  #TPLS=(${LIST_OF_TPLS//;/ })
+  TPLS=(${LIST_OF_TPLS//;/ })
   #for TPL in ${TPLS[*]}; do
   #  TPL_VARIANTS+="+${TPL}"
   #done
