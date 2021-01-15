@@ -314,6 +314,8 @@ main() {
     MACHINE_NAME=rhodes
   elif [ $(hostname) == 'jrood-31712s.nrel.gov' ]; then
     MACHINE_NAME=mac
+    # Disable testing on this machine for now
+    exit 0
   fi
     
   HOST_NAME="${MACHINE_NAME}.hpc.nrel.gov"
