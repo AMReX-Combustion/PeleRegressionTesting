@@ -193,7 +193,7 @@ test_configuration() {
   fi
 
   # Turn on address sanitizer for clang build on rhodes
-  if [ "${COMPILER_NAME}" == 'clang' ] && [ "${MACHINE_NAME}" == 'rhodes' ]; then
+  if [ "${COMPILER_NAME}" == 'clang' ]; then
     printf "\nSetting up address sanitizer in Clang...\n"
     export CXXFLAGS="-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer"
     printf "export CXXFLAGS=${CXXFLAGS}\n"
@@ -203,8 +203,10 @@ test_configuration() {
     CMAKE_BUILD_TYPE=Debug
     # Also run static analysis on this build
     cmd "cd ${PELEC_DIR}/build && ln -s ${CPPCHECK_ROOT_DIR}/cfg/std.cfg"
-    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CPPCHECK:BOOL=ON -DPELEC_ENABLE_CLANG_TIDY:BOOL=ON -DPELEC_ENABLE_SANITIZE:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_CPPCHECK:BOOL=ON -DPELEC_ENABLE_CLANG_TIDY:BOOL=ON -DPELEC_ENABLE_SANITIZE:BOOL=ON -DPELEC_ENABLE_FPE_TRAP:BOOL=OFF ${CMAKE_CONFIGURE_ARGS}"
     CTEST_ARGS="-DRUN_CODE_ANALYSIS:BOOL=TRUE ${CTEST_ARGS}"
+  else
+    CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_FPE_TRAP:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
   fi
 
   # Explicitly set compilers to MPI compilers
