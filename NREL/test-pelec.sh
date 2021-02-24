@@ -285,7 +285,7 @@ EOL
 
   printf "\nCopying fcompare golds to organized directory...\n"
   cmd "mkdir -p ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}"
-  (set -x; rsync -avm --include="*/" --include="plt00010**" --exclude="*" ${PELEC_DIR}/build/ExecCpp/RegTests/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
+  (set -x; rsync -avm --include="*/" --include="plt00010**" --exclude="*" ${PELEC_DIR}/build/Exec/RegTests/ ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/)
   # This only works on Linux
   #(set -x; cd ${PELEC_DIR}/build/Tests/test_files && find . -type d -name *plt00010* -exec cp -R --parents {} ${PELEC_TESTING_ROOT_DIR}/temp_golds/${ID_FILE}/ \;)
   #printf "\nCopying fextrema golds to organized directory...\n"
