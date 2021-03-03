@@ -31,7 +31,7 @@ fi
 PELEC_LOG_DIR=${PELEC_TESTING_ROOT_DIR}/logs
 PELELM_LOG_DIR=${PELELM_TESTING_ROOT_DIR}/logs
 PELEC_TEST_SCRIPT=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/test-pelec.sh
-PELELM_TEST_SCRIPT=${PELELM_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/test-pelelm.sh
+PELELM_TEST_SCRIPT=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/test-pelelm.sh
 
 # Run test script 
 if [ "${MACHINE_NAME}" == 'eagle' ]; then
