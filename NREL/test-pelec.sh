@@ -81,6 +81,7 @@ test_configuration() {
     if [ "${COMPILER_NAME}" == 'gcc' ]; then
       cmd "module load ${COMPILER_NAME}/${COMPILER_VERSION}"
     elif [ "${COMPILER_NAME}" == 'clang' ]; then
+      cmd "module load gcc"
       cmd "module load llvm/${COMPILER_VERSION}"
     elif [ "${COMPILER_NAME}" == 'intel' ]; then
       cmd "module load gcc"
@@ -211,17 +212,22 @@ test_configuration() {
     CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_FPE_TRAP_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
   fi
 
-  # Explicitly set compilers to MPI compilers
-  if [ "${COMPILER_NAME}" != 'intel' ]; then
-    CXX_COMPILER=mpicxx
-    C_COMPILER=mpicc
-    if [ "${MACHINE_NAME}" == 'eagle' ]; then
-      CXX_COMPILER=g++
-      C_COMPILER=gcc
-    fi
+  # Explicitly set compilers
+  if [ "${COMPILER_NAME}" == 'gcc' ]; then
+    CXX_COMPILER=g++
+    C_COMPILER=gcc
+    MPI_CXX_COMPILER=mpicxx
+    MPI_C_COMPILER=mpicc
+  elif [ "${COMPILER_NAME}" == 'clang' ]; then
+    CXX_COMPILER=clang++
+    C_COMPILER=clang
+    MPI_CXX_COMPILER=mpicxx
+    MPI_C_COMPILER=mpicc
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
-    CXX_COMPILER=mpiicpc
-    C_COMPILER=mpiicc
+    CXX_COMPILER=icpc
+    C_COMPILER=icc
+    MPI_CXX_COMPILER=mpiicpc
+    MPI_C_COMPILER=mpiicc
   fi
 
   # Give CMake a hint to find Python3
@@ -232,7 +238,7 @@ test_configuration() {
   cmd "which cmake"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+  CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DMPI_CXX_COMPILER=${MPI_CXX_COMPILER} -DMPI_C_COMPILER=${MPI_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPYTHON_EXECUTABLE=${PYTHON_EXE} -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
