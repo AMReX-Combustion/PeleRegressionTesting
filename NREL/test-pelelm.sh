@@ -219,14 +219,14 @@ test_configuration() {
     FORTRAN_COMPILER=gfortran
     MPI_CXX_COMPILER=mpicxx
     MPI_C_COMPILER=mpicc
-    MPI_FORTRAN_COMPILER=mpifort
+    MPI_FORTRAN_COMPILER=mpif90
   elif [ "${COMPILER_NAME}" == 'clang' ]; then
     CXX_COMPILER=clang++
     C_COMPILER=clang
     FORTRAN_COMPILER=gfortran
     MPI_CXX_COMPILER=mpicxx
     MPI_C_COMPILER=mpicc
-    MPI_FORTRAN_COMPILER=mpifort
+    MPI_FORTRAN_COMPILER=mpif90
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
     CXX_COMPILER=icpc
     C_COMPILER=icc
