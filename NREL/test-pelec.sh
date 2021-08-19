@@ -161,7 +161,7 @@ test_configuration() {
       printf "MASA_DIR=${MASA_DIR}\n"
     fi
     if [ "${TPL}" == 'sundials' ]; then
-      CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_SUNDIALS:BOOL=ON ${CMAKE_CONFIGURE_ARGS}"
+      CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_SUNDIALS:BOOL=ON -DPELEC_ODE_INTEGRATOR:STRING=arkode ${CMAKE_CONFIGURE_ARGS}"
     fi
   done
 
