@@ -160,9 +160,6 @@ test_configuration() {
       CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_DIR:PATH=${MASA_DIR} ${CMAKE_CONFIGURE_ARGS}"
       printf "MASA_DIR=${MASA_DIR}\n"
     fi
-    if [ "${TPL}" == 'sundials' ]; then
-      CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_SUNDIALS:BOOL=ON -DPELEC_ODE_INTEGRATOR:STRING=arkode ${CMAKE_CONFIGURE_ARGS}"
-    fi
   done
 
   # Default cmake build type
