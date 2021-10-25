@@ -460,7 +460,7 @@ main() {
 
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
     printf "\nSetting group...\n"
-    cmd "chgrp -R exact ${PELEC_TESTING_ROOT_DIR}"
+    cmd "chgrp -R hpacf ${PELEC_TESTING_ROOT_DIR}"
   fi
 
   printf "============================================================\n"
