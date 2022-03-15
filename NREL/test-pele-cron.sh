@@ -35,8 +35,8 @@ PELELM_TEST_SCRIPT=${PELEC_TESTING_ROOT_DIR}/PeleRegressionTesting/NREL/test-pel
 
 # Run test script 
 if [ "${MACHINE_NAME}" == 'eagle' ]; then
-  cd ${PELEC_LOG_DIR} && sbatch -J test-pelec -N 1 -t 1:00:00 -A exact -p debug -o "%x.o%j" --gres=gpu:2 ${PELEC_TEST_SCRIPT}
-  cd ${PELELM_LOG_DIR} && sbatch -J test-pelelm -N 1 -t 1:00:00 -A exact -p debug -o "%x.o%j" --gres=gpu:2 ${PELELM_TEST_SCRIPT}
+  cd ${PELEC_LOG_DIR} && sbatch -J test-pelec -N 1 -t 1:00:00 -A hpacf -p debug -o "%x.o%j" --gres=gpu:2 ${PELEC_TEST_SCRIPT}
+  cd ${PELELM_LOG_DIR} && sbatch -J test-pelelm -N 1 -t 1:00:00 -A hpacf -p debug -o "%x.o%j" --gres=gpu:2 ${PELELM_TEST_SCRIPT}
 elif [ "${MACHINE_NAME}" == 'mac' ]; then
   cd ${PELEC_LOG_DIR} && nice ${PELEC_TEST_SCRIPT} &> "test-pelec-$(date +%Y-%m-%d).log"
   cd ${PELELM_LOG_DIR} && nice ${PELELM_TEST_SCRIPT} &> "test-pelelm-$(date +%Y-%m-%d).log"
