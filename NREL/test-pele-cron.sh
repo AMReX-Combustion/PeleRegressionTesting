@@ -18,8 +18,8 @@ fi
   
 # Set root testing directory
 if [ "${MACHINE_NAME}" == 'eagle' ]; then
-  PELEC_TESTING_ROOT_DIR=/scratch/jrood/pelec-testing
-  PELELM_TESTING_ROOT_DIR=/scratch/jrood/pelelm-testing
+  PELEC_TESTING_ROOT_DIR=/scratch/${USER}/pelec-testing
+  PELELM_TESTING_ROOT_DIR=/scratch/${USER}/pelelm-testing
 elif [ "${MACHINE_NAME}" == 'mac' ]; then
   PELEC_TESTING_ROOT_DIR=${HOME}/pelec-testing
   PELELM_TESTING_ROOT_DIR=${HOME}/pelelm-testing
