@@ -336,7 +336,7 @@ main() {
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     CONFIGURATIONS[0]='gcc:8.4.0:false:true:sundials'
     CONFIGURATIONS[1]='gcc:8.4.0:false:false:sundials'
-    PELEC_TESTING_ROOT_DIR=/scratch/jrood/pelec-testing
+    PELEC_TESTING_ROOT_DIR=/scratch/${USER}/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   #elif [ "${MACHINE_NAME}" == 'mac' ]; then
   #  CONFIGURATIONS[0]='clang:12.0.0-apple:false:false:masa;sundials'
