@@ -156,9 +156,9 @@ test_configuration() {
       if [ $? -ne 0 ]; then
         cmd "spack install masa %${COMPILER_ID}"
       fi
-      MASA_DIR=$(spack location -i masa %${COMPILER_ID})
-      CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_DIR:PATH=${MASA_DIR} ${CMAKE_CONFIGURE_ARGS}"
-      printf "MASA_DIR=${MASA_DIR}\n"
+      MASA_ROOT=$(spack location -i masa %${COMPILER_ID})
+      CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_ROOT:PATH=${MASA_ROOT} ${CMAKE_CONFIGURE_ARGS}"
+      printf "MASA_ROOT=${MASA_ROOT}\n"
     fi
   done
 
