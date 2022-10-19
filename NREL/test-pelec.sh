@@ -37,7 +37,7 @@ test_configuration() {
   fi
 
   #CUDA version used for tests on Eagle
-  CUDA_VERSION="10.2.89"
+  CUDA_VERSION="11.2.2"
 
   cmd "cd ${PELEC_TESTING_ROOT_DIR}"
 
@@ -335,8 +335,7 @@ main() {
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
-    CONFIGURATIONS[0]='gcc:8.4.0:false:true:sundials'
-    CONFIGURATIONS[1]='gcc:8.4.0:false:false:sundials'
+    CONFIGURATIONS[0]='gcc:9.3.0:false:false:sundials'
     PELEC_TESTING_ROOT_DIR=/scratch/${USER}/pelec-testing
     INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
   #elif [ "${MACHINE_NAME}" == 'mac' ]; then
