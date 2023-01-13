@@ -325,12 +325,12 @@ main() {
   declare -a CONFIGURATIONS
   #CONFIGURATION[n]='compiler_name:compiler_version:openmp_enabled:use_latest_amrex:list_of_tpls'
   if [ "${MACHINE_NAME}" == 'rhodes' ]; then
-    CONFIGURATIONS[0]='intel:18.0.4:false:false:masa;sundials'
+    CONFIGURATIONS[0]='intel:20.0.2:false:false:masa;sundials'
     CONFIGURATIONS[1]='clang:10.0.0:false:false:masa;sundials'
     CONFIGURATIONS[2]='gcc:8.4.0:false:true:masa;sundials'
     CONFIGURATIONS[3]='gcc:8.4.0:false:false:masa;sundials'
     PELEC_TESTING_ROOT_DIR=/projects/ecp/combustion/pelec-testing
-    INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
+    INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2020.2
   elif [ "${MACHINE_NAME}" == 'eagle' ]; then
     CONFIGURATIONS[0]='gcc:9.3.0:false:false:sundials'
     PELEC_TESTING_ROOT_DIR=/scratch/${USER}/pelec-testing
