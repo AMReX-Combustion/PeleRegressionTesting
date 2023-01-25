@@ -27,9 +27,6 @@ test_configuration() {
   BLAS_ID=''
   if [ "${COMPILER_NAME}" == 'gcc' ] || [ "${COMPILER_NAME}" == 'clang' ]; then
     MPI_ID="openmpi"
-    if [ "${MACHINE_NAME}" == 'eagle' ]; then
-      MPI_ID="mpt"
-    fi
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
     # For intel, we want to build against intel-mpi and intel-mkl
     MPI_ID="intel-mpi"
@@ -100,7 +97,6 @@ test_configuration() {
     cmd "module load binutils"
     cmd "module load cmake"
     cmd "module load rsync"
-    cmd "module load mpt"
     if [ "${COMPILER_NAME}" == 'gcc' ]; then
       cmd "module load ${COMPILER_NAME}/${COMPILER_VERSION}"
     elif [ "${COMPILER_NAME}" == 'intel' ]; then
@@ -136,17 +132,21 @@ test_configuration() {
   fi
 
   printf "\nInstalling PeleC dependencies if necessary using ${COMPILER_ID}...\n"
-  spack find ${MPI_ID} %${COMPILER_ID}
-  if [ $? -ne 0 ]; then
-    cmd "spack install ${MPI_ID} %${COMPILER_ID}"
+  if [ "${MACHINE_NAME}" != 'eagle' ]; then
+    spack find ${MPI_ID} %${COMPILER_ID}
+    if [ $? -ne 0 ]; then
+      cmd "spack install ${MPI_ID} %${COMPILER_ID}"
+    fi
   fi
 
   # Refresh available modules (this is only really necessary on the first run of this script
   # because cmake and openmpi will already have been built and module files registered in subsequent runs)
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 
-  printf "\nLoading Spack modules into environment for CMake and MPI to use during CTest...\n"
-  cmd "spack load --first ${MPI_ID} %${COMPILER_ID}"
+  if [ "${MACHINE_NAME}" != 'eagle' ]; then
+    printf "\nLoading Spack modules into environment for CMake and MPI to use during CTest...\n"
+    cmd "spack load --first ${MPI_ID} %${COMPILER_ID}"
+  fi
 
   printf "\nSetting variables to pass to CTest...\n"
   CMAKE_CONFIGURE_ARGS=''
@@ -225,11 +225,17 @@ test_configuration() {
   fi
 
   printf "\nListing cmake and MPI that will be used in ctest...\n"
-  cmd "which mpiexec"
+  if [ "${MACHINE_NAME}" != 'eagle' ]; then
+    cmd "which mpiexec"
+  fi
   cmd "which cmake"
 
   # CMake configure arguments testing options
-  CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DMPI_CXX_COMPILER=${MPI_CXX_COMPILER} -DMPI_C_COMPILER=${MPI_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON -DPELEC_REFERENCE_GOLDS_DIRECTORY:PATH=${HOME}/combustion/PeleCGoldFiles ${CMAKE_CONFIGURE_ARGS}"
+  if [ "${MACHINE_NAME}" == 'eagle' ]; then
+    CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=OFF -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON -DPELEC_REFERENCE_GOLDS_DIRECTORY:PATH=${HOME}/combustion/PeleCGoldFiles ${CMAKE_CONFIGURE_ARGS}"
+  else
+    CMAKE_CONFIGURE_ARGS="-DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DMPI_CXX_COMPILER=${MPI_CXX_COMPILER} -DMPI_C_COMPILER=${MPI_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DPELEC_ENABLE_MPI:BOOL=ON -DPELEC_ENABLE_FCOMPARE_FOR_TESTS:BOOL=ON -DPELEC_REFERENCE_GOLDS_DIRECTORY:PATH=${HOME}/combustion/PeleCGoldFiles ${CMAKE_CONFIGURE_ARGS}"
+  fi
 
   # Set essential arguments for ctest
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
