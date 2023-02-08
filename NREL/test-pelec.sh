@@ -26,7 +26,7 @@ test_configuration() {
   MPI_ID=''
   BLAS_ID=''
   if [ "${COMPILER_NAME}" == 'gcc' ] || [ "${COMPILER_NAME}" == 'clang' ]; then
-    MPI_ID="openmpi"
+    MPI_ID="mpich"
   elif [ "${COMPILER_NAME}" == 'intel' ]; then
     # For intel, we want to build against intel-mpi and intel-mkl
     MPI_ID="intel-mpi"
@@ -57,7 +57,7 @@ test_configuration() {
     cmd "module load binutils"
     cmd "module load cmake"
     cmd "module load rsync"
-    cmd "module load python"
+    cmd "module load python/3.7.7"
     cmd "module load py-matplotlib"
     cmd "module load py-six"
     cmd "module load py-numpy"
@@ -140,7 +140,7 @@ test_configuration() {
   fi
 
   # Refresh available modules (this is only really necessary on the first run of this script
-  # because cmake and openmpi will already have been built and module files registered in subsequent runs)
+  # because cmake and mpich will already have been built and module files registered in subsequent runs)
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 
   if [ "${MACHINE_NAME}" != 'eagle' ]; then
@@ -154,9 +154,9 @@ test_configuration() {
     if [ "${TPL}" == 'masa' ]; then
       spack find masa %${COMPILER_ID}
       if [ $? -ne 0 ]; then
-        cmd "spack install masa %${COMPILER_ID}"
+        cmd "spack install masa~fortran~python %${COMPILER_ID}"
       fi
-      MASA_ROOT=$(spack location -i masa %${COMPILER_ID})
+      MASA_ROOT=$(spack location -i masa~fortran~python %${COMPILER_ID})
       CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_ROOT:PATH=${MASA_ROOT} ${CMAKE_CONFIGURE_ARGS}"
       printf "MASA_ROOT=${MASA_ROOT}\n"
     fi
