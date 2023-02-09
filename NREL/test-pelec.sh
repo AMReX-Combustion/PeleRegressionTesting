@@ -135,7 +135,7 @@ test_configuration() {
   if [ "${MACHINE_NAME}" != 'eagle' ]; then
     spack find ${MPI_ID} %${COMPILER_ID}
     if [ $? -ne 0 ]; then
-      cmd "spack install ${MPI_ID} %${COMPILER_ID}"
+      cmd "nice -n19 ionice -c3 spack install ${MPI_ID} %${COMPILER_ID}"
     fi
   fi
 
@@ -154,7 +154,7 @@ test_configuration() {
     if [ "${TPL}" == 'masa' ]; then
       spack find masa %${COMPILER_ID}
       if [ $? -ne 0 ]; then
-        cmd "spack install masa~fortran~python %${COMPILER_ID}"
+        cmd "nice -n19 ionice -c3 spack install masa~fortran~python %${COMPILER_ID}"
       fi
       MASA_ROOT=$(spack location -i masa~fortran~python %${COMPILER_ID})
       CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_ROOT:PATH=${MASA_ROOT} ${CMAKE_CONFIGURE_ARGS}"
@@ -253,7 +253,7 @@ test_configuration() {
   cmd "cd ${PELEC_DIR}/build"
 
   printf "\nRunning CTest at $(date)...\n"
-  cmd "ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -VV -S ${PELEC_DIR}/Tests/CTestNightlyScript.cmake"
+  cmd "nice -n19 ionice -c3 ctest ${CTEST_ARGS} -DCMAKE_CONFIGURE_ARGS=\"${CMAKE_CONFIGURE_ARGS}\" -VV -S ${PELEC_DIR}/Tests/CTestNightlyScript.cmake"
   printf "Returned from CTest at $(date)\n"
 
   printf "\nGoing to delete these gold files older than 30 days:\n"
