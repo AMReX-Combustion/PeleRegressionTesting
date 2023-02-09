@@ -241,9 +241,9 @@ test_configuration() {
   CTEST_ARGS="-DTESTING_ROOT_DIR=${PELEC_TESTING_ROOT_DIR} -DPELEC_DIR=${PELEC_DIR} -DTEST_LOG=${LOGS_DIR}/pelec-test-log.txt -DHOST_NAME=${HOST_NAME} -DEXTRA_BUILD_NAME=${EXTRA_BUILD_NAME} ${CTEST_ARGS}"
 
   # Allow for oversubscription in OpenMPI
-  if [ "${COMPILER_NAME}" != 'intel' ] && [ "${MACHINE_NAME}" != 'eagle' ]; then
-    CMAKE_CONFIGURE_ARGS="-DMPIEXEC_PREFLAGS:STRING=--oversubscribe ${CMAKE_CONFIGURE_ARGS}"
-  fi
+  #if [ "${COMPILER_NAME}" != 'intel' ] && [ "${MACHINE_NAME}" != 'eagle' ]; then
+  #  CMAKE_CONFIGURE_ARGS="-DMPIEXEC_PREFLAGS:STRING=--oversubscribe ${CMAKE_CONFIGURE_ARGS}"
+  #fi
 
   if [ "${MACHINE_NAME}" != 'mac' ]; then
     cmd "module list"
