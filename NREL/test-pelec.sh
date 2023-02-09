@@ -133,10 +133,10 @@ test_configuration() {
 
   printf "\nInstalling PeleC dependencies if necessary using ${COMPILER_ID}...\n"
   if [ "${MACHINE_NAME}" != 'eagle' ]; then
-    spack find ${MPI_ID} %${COMPILER_ID}
-    if [ $? -ne 0 ]; then
-      cmd "nice -n19 ionice -c3 spack install ${MPI_ID} %${COMPILER_ID}"
-    fi
+    #spack find ${MPI_ID} %${COMPILER_ID}
+    #if [ $? -ne 0 ]; then
+    cmd "nice -n19 ionice -c3 spack install ${MPI_ID} %${COMPILER_ID}"
+    #fi
   fi
 
   # Refresh available modules (this is only really necessary on the first run of this script
@@ -152,10 +152,10 @@ test_configuration() {
   CMAKE_CONFIGURE_ARGS=''
   for TPL in ${TPLS[*]}; do
     if [ "${TPL}" == 'masa' ]; then
-      spack find masa %${COMPILER_ID}
-      if [ $? -ne 0 ]; then
-        cmd "nice -n19 ionice -c3 spack install masa~fortran~python %${COMPILER_ID}"
-      fi
+      #spack find masa %${COMPILER_ID}
+      #if [ $? -ne 0 ]; then
+      cmd "nice -n19 ionice -c3 spack install masa~fortran~python %${COMPILER_ID}"
+      #fi
       MASA_ROOT=$(spack location -i masa~fortran~python %${COMPILER_ID})
       CMAKE_CONFIGURE_ARGS="-DPELEC_ENABLE_MASA:BOOL=ON -DMASA_ROOT:PATH=${MASA_ROOT} ${CMAKE_CONFIGURE_ARGS}"
       printf "MASA_ROOT=${MASA_ROOT}\n"
