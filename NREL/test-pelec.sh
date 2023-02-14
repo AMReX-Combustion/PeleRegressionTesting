@@ -137,13 +137,9 @@ test_configuration() {
     #if [ $? -ne 0 ]; then
     cmd "nice -n19 ionice -c3 spack install ${MPI_ID} %${COMPILER_ID}"
     #fi
-  fi
-
-  # Refresh available modules (this is only really necessary on the first run of this script
-  # because cmake and mpich will already have been built and module files registered in subsequent runs)
-  cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
-
-  if [ "${MACHINE_NAME}" != 'eagle' ]; then
+    # Refresh available modules (this is only really necessary on the first run of this script
+    # because cmake and mpich will already have been built and module files registered in subsequent runs)
+    cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
     printf "\nLoading Spack modules into environment for CMake and MPI to use during CTest...\n"
     cmd "spack load --first ${MPI_ID} %${COMPILER_ID}"
   fi
@@ -410,7 +406,9 @@ main() {
   fi
  
   printf "\nLoading Spack...\n"
-  cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
+  if [ "${MACHINE_NAME}" != 'eagle' ]; then
+    cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
+  fi
 
   printf "\nMaking common directory across all tests in which to organize and save gold files...\n"
   if [ ! -z "${PELEC_TESTING_ROOT_DIR}" ]; then
